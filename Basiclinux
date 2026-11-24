@@ -1,0 +1,3948 @@
+Linux and Shell Scripting – 240 Interview Questions with Answers
+Part 1: Linux Fundamentals and Architecture (Questions 1–40)
+1. Explain Linux architecture with a diagram.
+Answer:
+Linux architecture is the structured in layers, that explains how users interact with hardware through different software layers.
+Linux architecture has five major components:
+1.	Hardware – CPU, RAM, hard disk, keyboard, network card.
+2.	Kernel – manages hardware, memory, processes and devices.
+3.	Shell – acts as an interface between users and the kernel.
+4.	System utilities – commands such as ls, cp, mv, grep.
+5.	Applications – browsers, databases, Tomcat, Jenkins, etc.
+Linux architecture diagram:
+USER / ADMINISTRATOR
+Interacts with the Linux system
+APPLICATIONS
+Jenkins | Tomcat | MySQL | Browser
+SHELL AND SYSTEM UTILITIES
+Bash | ls | cp | grep | systemctl
+KERNEL
+Process | Memory | Device | File system | Network management
+HARDWARE
+CPU | RAM | HDD/SSD | Network devices
+Interview answer: Linux architecture consists of hardware, kernel, shell, system utilities and applications. The kernel is the core component that manages system resources and communicates with hardware.
+2. What is systemd?
+Answer:
+systemd is a system and service manager in Linux. It is responsible for starting and managing services during system boot.
+Why do we use it?
+•	To start services. To stop services. To restart services.To check service status. To manage the boot process.
+Commands:
+systemctl start nginx,systemctl stop nginx,systemctl restart nginx,systemctl status nginx
+systemctl enable nginx,systemctl disable nginx
+Example:
+If Tomcat is stopped, we can start it using:
+sudo systemctl start tomcat
+Note: systemd is the service manager; systemctl is the command used to communicate with it.
+3. What is LVM? What are its components?
+Answer:
+LVM stands for Logical Volume Manager.
+It is used to manage disk storage flexibly. We can increase or decrease logical volumes without managing every physical disk partition manually.
+Main components:
+1.	PV – Physical Volume: Actual disk or partition.
+2.	VG – Volume Group: Collection of physical volumes.
+3.	LV – Logical Volume: Storage space created from a volume group.
+ 
+Example commands:
+pvcreate /dev/sdb
+vgcreate vg_data /dev/sdb
+lvcreate -L 5G -n lv_data vg_data
+Check the details:
+pvs
+vgs
+lvs
+Real-time example:
+Suppose your server has a 100 GB disk. Your application requires more storage. Using LVM, you can add another disk to the volume group and extend the logical volume.
+4. What is the difference between TCP and UDP?
+Answer:
+TCP stands for Transmission Control Protocol.
+UDP stands for User Datagram Protocol.
+TCP	UDP
+Connection-oriented	Connectionless
+Reliable communication	No delivery guarantee
+Ensures data delivery and order	No guarantee of delivery or order
+Generally slower	Generally faster
+Uses acknowledgements	Does not use acknowledgements
+Used in SSH, HTTPS	Used in DNS, streaming, VoIP
+Example:
+•	TCP: Downloading a file. We need the complete file without missing data.
+•	UDP: Live video or voice calls. Speed and low latency are important.
+Interview answer: TCP provides reliable, ordered communication, whereas UDP provides faster, connectionless communication without guaranteed delivery.
+5. What is the purpose of private IP and public IP? Give use cases.
+Answer:
+An IP address is a unique address used to identify a device on a network.
+Private IP:
+•	Used for internal communication.
+•	Not directly accessible from the public internet.
+•	Used inside an office network or AWS VPC.
+Examples: 192.168.1.20
+Public IP:
+•	Used for communication over the internet.
+•	Can be reachable from outside, subject to firewall and routing rules.
+•	Used for publicly accessible websites and servers.
+Real-time AWS example:
+Suppose we launch two EC2 instances:
+•	Web server: Public IP to receive internet traffic.
+•	Database server: Private IP to communicate internally with the web server.
+ 
+Interview answer: Private IPs are used for internal communication, while public IPs are used for internet-facing communication.
+6. What is GRUB?
+Answer:
+GRUB stands for Grand Unified Bootloader.
+It is a bootloader that helps load the Linux operating system into memory when the computer starts.
+Boot process:
+1.	BIOS/UEFI starts.
+2.	GRUB loads.
+3.	GRUB loads the Linux kernel.
+4.	Kernel initializes hardware.
+5.	systemd starts.
+6.	Services start.
+Important configuration files:
+/etc/default/grub
+/boot/grub2/grub.cfg
+On some distributions, the GRUB configuration path is different.
+Interview answer: GRUB is a bootloader responsible for loading the Linux kernel during system startup.
+7. What is traceroute?
+Answer:
+traceroute is a networking command used to identify the network path taken by packets from the source system to the destination.
+Why do we use it?
+•	To troubleshoot network connectivity.
+•	To identify where packets are getting delayed.
+•	To identify intermediate routers.
+•	To investigate network routing problems.
+Command:
+traceroute google.com
+On some Linux systems:
+tracepath google.com
+Install if required:
+sudo apt install traceroute
+Example:
+If your server cannot reach Google, traceroute helps identify the intermediate network hops and where the problem may be occurring.
+8. What is a port? What commands are associated with it? What are listening and established ports?
+Answer:
+A port is a logical communication endpoint used by applications and services to communicate over a network.
+Examples:
+•	SSH – 22
+•	HTTP – 80
+•	HTTPS – 443
+•	Jenkins – 8080 (default)
+•	DNS – 53
+Important commands:
+ss -tulnp
+netstat -tulnp
+lsof -i :8080
+nc -zv localhost 8080
+Listening port:
+A service is waiting for incoming connections.
+Example:
+0.0.0.0:8080 LISTEN
+Established port:
+An active connection has been established between two endpoints.
+Example:
+ESTAB
+Difference:
+LISTEN	ESTABLISHED
+Waiting for connections	Active connection exists
+Server is ready to accept connections	Communication is in progress
+Example: SSH listening on port 22	User connected through SSH
+9. What is strace? Where do we use it?
+Answer:
+strace is a Linux troubleshooting tool used to trace system calls made by a process.
+It helps identify why an application or service is failing.
+Why do we use it?
+•	To troubleshoot application failures.
+•	To identify missing files.
+•	To identify permission problems.
+•	To identify system call errors.
+•	To troubleshoot application startup issues.
+Example:
+strace ls
+Trace a running process:
+strace -p 1234
+Trace a command and save output:
+strace -o output.log ls
+Interview answer: strace helps troubleshoot applications by showing the system calls they execute and the errors they encounter.
+10. What is nohup? Why do we use it?
+Answer:
+nohup stands for No Hang Up.
+It allows a command to continue running even after the terminal is closed or the user disconnects.
+Example:
+nohup sh script.sh &
+Save output in a specific file:
+nohup sh script.sh > output.log 2>&1 &
+Why do we use it?
+Suppose you are running a backup script that takes two hours. If your SSH session disconnects, nohup helps the script continue running.
+11. What are positional parameters? Why do we use them?
+Answer:
+Positional parameters are variables used to receive arguments passed to a shell script.
+Example:
+Create a script:
+#!/bin/bash
+
+echo "First number: $1"
+echo "Second number: $2"
+Execute:
+bash test.sh 10 20
+Output:
+First number: 10
+Second number: 20
+Important positional parameters:
+Variable	Meaning
+$0	Script name
+$1	First argument
+$2	Second argument
+$3	Third argument
+$#	Number of arguments
+$@	All arguments separately
+$*	All arguments as a single string (when quoted)
+Purpose: We use positional parameters to pass dynamic values to scripts instead of hardcoding them.
+12. What does /etc/fstab and /etc/hosts contain? Give five similar examples.
+Answer:
+/etc/fstab contains information about file systems and their mount configuration.
+Example:
+cat /etc/fstab
+It contains:
+•	File system device or UUID.
+•	Mount point.
+•	File system type.
+•	Mount options.
+•	Dump and filesystem-check settings.
+/etc/hosts contains hostname-to-IP address mappings.
+Example:
+cat /etc/hosts
+Example entry:
+192.168.1.10  myserver
+Five other important Linux configuration files:
+File	Purpose
+/etc/passwd	User account information
+/etc/shadow	Password hashes and password aging information
+/etc/group	Group information
+/etc/hostname	System hostname
+/etc/resolv.conf	DNS resolver configuration
+Other important files:
+•	/etc/sudoers – sudo permissions.
+•	/etc/ssh/sshd_config – SSH server configuration.
+•	/etc/os-release – OS identification details.
+13. What is the meaning of source and executing a script?
+Answer:
+There are two different ways to run a shell script.
+1. Executing a script
+./test.sh
+Or:
+bash test.sh
+The script runs in a separate process or shell environment. Changes to its shell variables do not affect the calling shell.
+2. Sourcing a script
+source test.sh
+Or:
+. test.sh
+The script runs in the current shell.
+Difference:
+Executing	Source
+Runs in a separate process or shell	Runs in the current shell
+Changes to shell variables do not persist in parent shell	Variable changes persist
+Exit from script does not normally exit parent shell	exit can terminate current shell
+Example:
+export NAME=Lokesh
+If you source this script, the variable is available in your current shell.
+14. What is grep? What are its important options?
+Answer:
+grep stands for Global Regular Expression Print.
+It is used to search for a particular word or pattern inside a file.
+Syntax:
+grep "pattern" filename
+Example:
+grep "error" application.log
+Important grep options:
+Option	Meaning
+-i	Ignore uppercase/lowercase differences
+-v	Display non-matching lines
+-n	Display line numbers
+-c	Count matching lines
+-l	Display matching filenames
+-r	Search recursively
+-w	Match whole words
+-e	Search multiple patterns
+-o	Display only matching text
+-A 2	Display 2 lines after match
+-B 2	Display 2 lines before match
+-C 2	Display 2 lines before and after
+Examples:
+grep -i "error" app.log
+grep -n "failed" app.log
+grep -v "success" app.log
+grep -c "error" app.log
+grep -r "error" /var/log/
+15. What do you mean by max depth and min depth?
+Answer:
+-maxdepth and -mindepth are options used with the find command.
+They control how many directory levels find searches.
+Max depth:
+It limits the maximum directory level to search.
+find /home -maxdepth 2 -type f
+Meaning: Search files in /home and up to two directory levels below it.
+Min depth:
+It specifies the minimum directory level at which searching should start.
+find /home -mindepth 2 -type f
+Meaning: Do not return files directly inside /home; start at the next directory level.
+Combined example:
+find /home -mindepth 2 -maxdepth 3 -type f
+Searches files only between levels 2 and 3.
+16. What are zombie, orphan, child and parent processes?
+Answer:
+Parent process: A process that creates another process.
+Child process: A process created by another process.
+Zombie process: A process that has finished execution but whose exit status has not yet been collected by its parent.
+Orphan process: A process whose parent has terminated while the child is still running. It is generally adopted by PID 1 or another designated subreaper.
+Simple diagram:
+Parent Process
+PID: 1000
+Child Process
+PID: 1001
+How to identify zombie processes:
+ps aux | grep Z
+Or:
+ps -eo pid,ppid,stat,cmd
+A Z in the process state indicates a zombie.
+17. What is lsof? List associated commands.
+Answer:
+lsof stands for List Open Files.
+It displays files opened by processes.
+In Linux, everything is treated as a file, including network sockets and devices.
+Why do we use it?
+•	Identify which process is using a file.
+•	Identify which process is using a port.
+•	Troubleshoot file locks.
+•	Identify deleted files still consuming disk space.
+Important commands:
+lsof
+List all open files.
+lsof -i
+List network connections.
+lsof -i :8080
+Find which process is using port 8080.
+lsof -u root
+List files opened by root.
+lsof /var/log/messages
+Find processes using a particular file.
+18. Why do we use the kill command? List its options.
+Answer:
+The kill command is used to send signals to processes.
+It is commonly used to stop or terminate processes.
+Important signals:
+Signal	Number	Meaning
+SIGHUP	1	Hang up; often used to request reload
+SIGINT	2	Interrupt
+SIGKILL	9	Forcefully terminate
+SIGTERM	15	Request graceful termination
+SIGSTOP	19	Stop process
+SIGCONT	18	Continue stopped process
+Examples:
+Gracefully terminate:
+kill -15 1234
+Forcefully terminate:
+kill -9 1234
+List signals:
+kill -l
+Interview answer: We use kill to send signals to processes. SIGTERM is preferred because it gives the process an opportunity to shut down properly. SIGKILL is used when a process does not respond.
+19. What is the difference between umask and chmod?
+Answer:
+chmod is used to change permissions of existing files and directories.
+umask controls the default permissions assigned to newly created files and directories.
+chmod	umask
+Changes existing permissions	Controls default permissions
+Applied to specific files/directories	Applied to newly created files/directories
+Uses permission values	Uses permission masks
+chmod example:
+chmod 755 script.sh
+umask example:
+umask 022
+With a typical default base:
+•	New file: 644
+•	New directory: 755
+20. What is the purpose of &&, | and || in shell?
+Answer:
+These operators are used to control command execution.
+1. && – AND operator
+The second command executes only if the first command succeeds.
+mkdir test && cd test
+2. || – OR operator
+The second command executes only if the first command fails.
+mkdir test || echo "Directory creation failed"
+3. | – Pipe operator
+It sends the output of one command as input to another command.
+ps -ef | grep java
+Easy way to remember:
+| Operator | Meaning | |---|---| | && | Run next command if previous succeeds | | || | Run next command if previous fails | | | | Pass output to another command |
+21. What is a Here Document? Why do we use it?
+Answer:
+A Here Document, also called a heredoc, is used to pass multiple lines of input to a command or script.
+It is represented by <<.
+Example:
+cat <<EOF
+Hello
+Welcome to Linux
+This is a shell script
+EOF
+Output:
+Hello
+Welcome to Linux
+This is a shell script
+Why do we use it?
+•	To provide multiple lines of input.
+•	To create configuration files.
+•	To automate scripts.
+•	To execute SQL commands through scripts.
+Example:
+cat <<EOF > test.txt
+Linux
+AWS
+DevOps
+EOF
+This creates a file containing three lines.
+22. What is the difference between cron and at?
+Answer:
+Both are Linux job scheduling tools.
+cron	at
+Runs jobs repeatedly	Runs a job once
+Used for scheduled tasks	Used for one-time tasks
+Supports daily, weekly and monthly scheduling	Supports a specific future time
+Uses crontab	Uses at command
+Cron example:
+crontab -e
+Run a script every day at 9 AM:
+0 9 * * * /home/user/backup.sh
+At example:
+at 10:00 PM
+Then enter:
+sh backup.sh
+Press Ctrl+D to submit the job.
+23. What is the difference between cp and mv?
+Answer:
+cp is used to copy files and directories.
+mv is used to move or rename files and directories.
+cp	mv
+Copies data	Moves data
+Original file remains	Original location no longer contains the moved file
+Used for backup and duplication	Used for moving and renaming
+Examples:
+Copy:
+cp file.txt /home/user/
+Move:
+mv file.txt /home/user/
+Rename:
+mv old.txt new.txt
+Copy directory:
+cp -r dir1 dir2
+24. What is a sticky bit? Why do we use it?
+Answer:
+A sticky bit is a special permission generally used on shared directories.
+It prevents ordinary users from deleting or renaming files owned by other users in that directory, even when the directory is writable.
+Example:
+The /tmp directory commonly uses sticky bit permission.
+Check:
+ls -ld /tmp
+Output may look like:
+drwxrwxrwt
+The final t represents the sticky bit.
+Apply sticky bit:
+chmod +t testdir
+Remove sticky bit:
+chmod -t testdir
+Numeric method:
+chmod 1777 testdir
+25. What is a variable? Give an example.
+Answer:
+A variable is a named storage location used to store data temporarily in a shell.
+Example:
+#!/bin/bash
+
+name="Lokesh"
+
+echo "My name is $name"
+Output:
+My name is Lokesh
+Important points:
+•	Variable names are case-sensitive.
+•	Do not put spaces around =.
+•	Use $ to access a variable's value.
+Correct:
+name="Linux"
+Incorrect:
+name = "Linux"
+26. What are debugging options in shell scripting?
+Answer:
+Debugging means identifying and correcting errors in a shell script.
+Important debugging options:
+Option	Purpose
+-x	Displays commands as they execute
+-v	Displays script lines as they are read
+-n	Checks syntax without executing commands
+set -x	Enables debugging
+set +x	Disables debugging
+set -e	Exits when a command fails (with some exceptions)
+set -u	Treats unset variables as errors
+set -o pipefail	Makes a pipeline fail if a command in it fails
+Examples:
+Execute with debugging:
+bash -x script.sh
+Check syntax:
+bash -n script.sh
+Enable debugging inside a script:
+set -x
+
+echo "Hello Linux"
+
+set +x
+Interview answer: We use debugging options to identify syntax errors, incorrect variables and command failures in shell scripts.
+27. What are the different types of script execution methods?
+Answer:
+There are several ways to execute a shell script.
+Method 1: Using bash
+bash script.sh
+Method 2: Using sh
+sh script.sh
+Note: sh may not support all Bash-specific features.
+Method 3: Using executable permission
+chmod +x script.sh
+./script.sh
+Method 4: Using source
+source script.sh
+Method 5: Using dot operator
+. script.sh
+Method 6: Using an absolute path
+/home/user/script.sh
+The script needs executable permission and a valid shebang for direct execution.
+28. How do you display the contents of a file? List similar commands.
+Answer:
+We use different Linux commands to display file contents.
+Command	Purpose
+cat	Displays complete file content
+more	Displays content page by page
+less	Displays content with navigation
+head	Displays first 10 lines by default
+tail	Displays last 10 lines by default
+tac	Displays lines in reverse order
+nl	Displays numbered lines
+sed -n	Displays selected lines
+awk	Displays selected fields or records
+Examples:
+cat file.txt
+more file.txt
+less file.txt
+head file.txt
+tail file.txt
+tac file.txt
+nl file.txt
+29. What is the difference between more and less?
+Answer:
+Both commands display large files page by page.
+more	less
+Basic file viewer	Advanced file viewer
+Mainly forward navigation	Forward and backward navigation
+Limited navigation	Supports searching and flexible navigation
+Simpler functionality	More powerful functionality
+Example:
+more application.log
+less application.log
+Useful less shortcuts:
+•	Space – Next page.
+•	b – Previous page.
+•	/error – Search for error.
+•	q – Exit.
+30. What is the difference between head and tail?
+Answer:
+head displays the beginning of a file.
+tail displays the end of a file.
+head	tail
+Displays first lines	Displays last lines
+Used to check file beginnings	Used to check recent log entries
+head -n 5 file.txt	tail -n 5 file.txt
+Real-time DevOps example:
+To check recent application logs:
+tail -f application.log
+This continuously displays newly added log entries.
+31. What is the difference between cut and awk?
+Answer:
+Both commands are used to extract information from files.
+cut	awk
+Simple field extraction	Advanced text processing
+Works with delimiters and character positions	Works with patterns, fields and conditions
+Limited processing	Supports calculations and logic
+Easy to use	More flexible
+cut example:
+cut -d ':' -f 1 /etc/passwd
+Displays the first field (usernames).
+awk example:
+awk -F ':' '{print $1}' /etc/passwd
+Displays the same first field.
+Print sixth column:
+awk '{print $6}' file.txt
+32. Difference between cp and mv.
+This is the same as Question 23.
+•	cp copies a file while keeping the original.
+•	mv moves or renames a file.
+Examples:
+cp a.txt b.txt
+mv a.txt b.txt
+33. Difference between head and tail.
+This is the same as Question 30.
+•	head displays the beginning of a file.
+•	tail displays the end of a file.
+Examples:
+head -n 5 file.txt
+tail -n 5 file.txt
+34. What is the difference between find and man?
+Answer:
+find is used to search for files and directories.
+man is used to display the manual or documentation of Linux commands.
+find	man
+Searches files and directories	Displays command documentation
+Used for file management	Used for learning commands
+Searches by name, size, type, time	Displays usage, options and examples
+Examples:
+find /home -name "*.sh"
+man ls
+35. What are special variables in shell scripting?
+Answer:
+Special variables are predefined shell variables used to obtain script arguments, process information and command execution status.
+Variable	Meaning
+$0	Script name
+$1	First argument
+$2	Second argument
+$#	Number of arguments
+$@	All arguments separately
+$*	All arguments
+$?	Exit status of previous command
+$$	Current shell process ID
+$!	PID of last background process
+$_	Last argument of previous command in Bash
+Example:
+#!/bin/bash
+
+echo "Script: $0"
+echo "First argument: $1"
+echo "Total arguments: $#"
+echo "All arguments: $@"
+Execute:
+bash test.sh Linux AWS DevOps
+36. What is a shell and shell scripting?
+Answer:
+Shell: A shell is a command interpreter that acts as an interface between the user and the operating system.
+Examples:
+•	Bash
+•	Sh
+•	Ksh
+•	Zsh
+•	Fish
+Shell scripting: Shell scripting means writing multiple Linux commands inside a file and executing them together to automate tasks.
+Example:
+#!/bin/bash
+
+echo "Welcome to Linux"
+date
+hostname
+Why do we use shell scripting?
+•	Automate repetitive tasks.
+•	Manage servers.
+•	Take backups.
+•	Monitor disk usage.
+•	Start and stop services.
+•	Automate DevOps activities.
+37. What is the purpose of the file command?
+Answer:
+The file command identifies the actual type of a file.
+It checks the file contents rather than relying only on the filename extension.
+Example:
+file test.txt
+Output:
+test.txt: ASCII text
+Other examples:
+file script.sh
+file image.png
+file archive.tar.gz
+Purpose: We use it to identify whether a file is text, executable, image, archive or another file type.
+38. How do you create an empty file using touch? List similar commands.
+Answer:
+The touch command creates an empty file if it does not exist.
+Example:
+touch file.txt
+Other methods:
+Using echo:
+echo -n > file.txt
+Using redirection:
+> file.txt
+Using cat:
+cat > file.txt
+Press Ctrl+D to finish.
+Using truncate:
+truncate -s 0 file.txt
+Create five similar files:
+touch file{1..5}.txt
+Output:
+file1.txt
+file2.txt
+file3.txt
+file4.txt
+file5.txt
+39. What is redirect and append in Linux? Give the difference.
+Answer:
+Redirection is used to send command output to a file instead of displaying it on the terminal.
+1. > – Redirect / overwrite
+It replaces the existing file contents.
+echo "Linux" > file.txt
+2. >> – Append
+It adds new content at the end of an existing file without deleting previous content.
+echo "DevOps" >> file.txt
+Difference:
+>	>>
+Overwrites existing content	Adds content at the end
+Creates file if absent	Creates file if absent
+Old content is removed	Old content remains
+Other useful redirection operators:
+command < input.txt
+command 2> error.log
+command > output.log 2>&1
+40. Why do we use tee and tac commands?
+Answer:
+Tee command:
+The tee command reads input and sends it to both the terminal and a file.
+Example:
+ls -l | tee output.txt
+This displays the output on the terminal and saves it in output.txt.
+Append mode:
+ls -l | tee -a output.txt
+TAC command:
+The tac command displays file lines in reverse order.
+Example:
+tac file.txt
+Suppose the file contains:
+Linux
+AWS
+DevOps
+Output:
+DevOps
+AWS
+Linux
+Difference:
+tee	tac
+Displays and saves command output	Displays lines in reverse order
+Used for logging output	Used for reverse file viewing
+Supports append with -a	Reads from end to beginning
+Part 2: Linux Distributions, Networking, Permissions and Process Management (Questions 41–80)
+41. List Linux distributions. What is a package manager and why do we need it?
+Answer:
+Linux distributions are different versions of Linux developed by different organizations.
+Important Linux distributions:
+Distribution	Package manager
+Ubuntu	APT
+Debian	APT
+Red Hat Enterprise Linux (RHEL)	DNF / YUM
+CentOS	YUM / DNF
+Rocky Linux	DNF
+AlmaLinux	DNF
+Fedora	DNF
+Amazon Linux	DNF / YUM
+SUSE Linux	Zypper
+Arch Linux	Pacman
+What is a package manager?
+A package manager is a tool used to install, update, remove and manage software packages in Linux.
+Examples:
+Ubuntu:
+sudo apt install nginx
+sudo apt update
+sudo apt remove nginx
+Red Hat:
+sudo dnf install httpd
+sudo dnf update
+sudo dnf remove httpd
+Why do we use it?
+•	Install software.
+•	Update applications.
+•	Remove unwanted packages.
+•	Manage software dependencies.
+•	Maintain system security.
+42. Why do we use hostnamectl and systemctl?
+Answer:
+Both commands are used for system administration, but their purposes are different.
+hostnamectl:
+Used to view or change the hostname of a Linux server.
+hostnamectl
+Change hostname:
+sudo hostnamectl set-hostname webserver
+systemctl:
+Used to manage system services.
+systemctl status nginx
+systemctl start nginx
+systemctl stop nginx
+systemctl restart nginx
+Difference:
+•	hostnamectl – manages system hostname and related host information.
+•	systemctl – manages services and systemd units.
+43. How do you find private IP and public IP in Linux?
+Answer:
+To find private IP:
+ip addr
+Or:
+hostname -I
+Or:
+ip route get 8.8.8.8
+To find public IP:
+curl ifconfig.me
+Alternative:
+curl https://api.ipify.org
+AWS example:
+ip addr
+Displays the EC2 instance's network interface and private IP.
+curl ifconfig.me
+Displays the public IP seen by the external service, if internet access is available.
+44. What is the purpose of /etc/passwd and /etc/fstab?
+Answer:
+/etc/passwd:
+Contains basic user account information.
+cat /etc/passwd
+Example:
+root:x:0:0:root:/root:/bin/bash
+The fields represent:
+1.	Username.
+2.	Password placeholder.
+3.	User ID (UID).
+4.	Group ID (GID).
+5.	User information.
+6.	Home directory.
+7.	Login shell.
+/etc/fstab:
+Contains information about file systems that should be mounted, usually during system startup.
+cat /etc/fstab
+It includes:
+•	Device or UUID.
+•	Mount point.
+•	File system type.
+•	Mount options.
+•	Dump setting.
+•	Filesystem check order.
+45. How do you check which operating system we are using in detail?
+Answer:
+We use different commands to identify the Linux distribution, version and kernel.
+Command 1:
+cat /etc/os-release
+Displays distribution name and version.
+Command 2:
+hostnamectl
+Displays operating system and kernel information on systemd systems.
+Command 3:
+uname -a
+Displays kernel and system architecture information.
+Command 4:
+lsb_release -a
+Displays Linux distribution information if the command is installed.
+45 (second). What is the purpose of cat /etc/os-release?
+Answer:
+It displays the operating system identification details.
+Command:
+cat /etc/os-release
+Example output:
+NAME="Ubuntu"
+VERSION="24.04 LTS"
+ID=ubuntu
+VERSION_ID="24.04"
+Why do we use it?
+•	To identify Linux distribution.
+•	To identify OS version.
+•	To check the distribution ID.
+•	To decide which package manager to use.
+For example, Ubuntu uses APT, whereas RHEL uses DNF.
+46. What are SUID, SGID and Sticky Bit in Linux?
+Answer:
+These are three special permissions in Linux.
+1. SUID – Set User ID
+When applied to an executable file, it allows the program to run with the file owner's effective user ID.
+Example:
+chmod u+s file
+2. SGID – Set Group ID
+When applied to a directory, newly created files and subdirectories generally inherit the directory's group.
+Example:
+chmod g+s directory
+3. Sticky Bit
+Prevents ordinary users from deleting or renaming files belonging to other users in a shared directory.
+Example:
+chmod +t directory
+Summary:
+Permission	Purpose
+SUID	Run executable with file owner's effective privileges
+SGID	Run executable with file group's effective privileges; on directories, inherit group
+Sticky bit	Protect other users' files in shared directories
+47. How do you change ownership of a file?
+Answer:
+We use the chown command to change file ownership.
+Syntax:
+chown username filename
+Example:
+sudo chown lokesh file.txt
+Change owner and group:
+sudo chown lokesh:devops file.txt
+Change ownership recursively:
+sudo chown -R lokesh:devops /home/project
+Check ownership:
+ls -l file.txt
+48. How do you change file permissions?
+Answer:
+We use the chmod command.
+Linux permissions are:
+•	r – Read (4)
+•	w – Write (2)
+•	x – Execute (1)
+Example:
+chmod 755 file.sh
+Meaning:
+User category	Permission	Number
+Owner	rwx	7
+Group	r-x	5
+Others	r-x	5
+Other examples:
+chmod 644 file.txt
+chmod 600 file.txt
+chmod 777 file.txt
+Note: Avoid 777 unless there is a specific security-approved reason.
+49. How do you give executable permission to a file?
+Answer:
+We use the chmod command.
+Example:
+chmod +x script.sh
+Give execute permission only to the owner:
+chmod u+x script.sh
+Give execute permission to everyone:
+chmod a+x script.sh
+Execute:
+./script.sh
+50. When we write a new script, is it necessary to give executable permission?
+Answer:
+No. Executable permission is not necessary for every execution method.
+Method 1: Using Bash
+bash script.sh
+Executable permission is not required. The script must be readable.
+Method 2: Direct execution
+./script.sh
+Executable permission is required, along with a valid shebang for the intended interpreter.
+Interview answer: Executable permission is required when we execute a script directly using its path. It is not required when we execute it through the Bash interpreter.
+51. What are standard input, standard output and standard error?
+Answer:
+Linux uses three standard data streams.
+Stream	Number	Meaning
+stdin	0	Standard input
+stdout	1	Standard output
+stderr	2	Standard error
+1. Standard input (0)
+Input provided to a command.
+Example:
+cat < file.txt
+2. Standard output (1)
+Normal command output.
+ls > output.txt
+3. Standard error (2)
+Error messages generated by commands.
+ls /wrongpath 2> error.log
+Redirect both output and errors:
+command > output.log 2>&1
+52. What is umask? Why do we use it in Linux?
+Answer:
+umask stands for User File Creation Mode Mask.
+It controls the default permissions assigned to newly created files and directories.
+Default base permissions:
+•	Files: 666
+•	Directories: 777
+For example:
+umask 022
+Result:
+Type	Calculation	Final permission
+File	666 minus masked permissions	644
+Directory	777 minus masked permissions	755
+Check current umask:
+umask
+Change temporarily:
+umask 027
+For permanent changes, add the command to the appropriate shell startup file, such as .bashrc or /etc/profile, depending on the users and sessions involved.
+53. What is a daemon process? Why is it used in Linux?
+Answer:
+A daemon is a background process that provides services or performs tasks without requiring continuous user interaction.
+Examples:
+•	sshd – SSH service.
+•	crond – Scheduled jobs.
+•	httpd – Apache web server.
+•	systemd – System and service manager.
+Check daemon processes:
+ps -ef
+Check SSH service:
+systemctl status sshd
+Why do we use daemon processes?
+•	Run services in the background.
+•	Handle network requests.
+•	Schedule jobs.
+•	Monitor system activities.
+•	Provide application services.
+54. How do you identify background and foreground processes?
+Answer:
+Foreground process:
+A process running directly in the current terminal session.
+Example:
+ping google.com
+Press Ctrl+C to stop it.
+Background process:
+A process running without occupying the terminal.
+Example:
+ping google.com &
+Important commands:
+jobs
+Displays background jobs in the current shell.
+bg
+Resumes a suspended job in the background.
+fg
+Brings a job to the foreground.
+ps -ef
+Lists processes system-wide.
+55. What is the difference between rsync and scp?
+Answer:
+Both commands are used to transfer files between servers.
+rsync	scp
+Synchronizes files and directories	Copies files and directories
+Can transfer only changed data blocks	Generally transfers file data again
+Supports incremental transfers	No built-in incremental synchronization
+Supports deletion synchronization	Does not provide the same synchronization feature
+Useful for repeated backups	Useful for simple file transfers
+SCP example:
+scp file.txt user@192.168.1.10:/home/user/
+RSYNC example:
+rsync -avz file.txt user@192.168.1.10:/home/user/
+Real-time DevOps example:
+If you regularly synchronize application backup directories between servers, rsync is generally more efficient.
+56. What are file types and exit codes? Why do we use them?
+Answer:
+Linux file types:
+We can identify file types using:
+ls -l
+The first character represents the file type.
+Symbol	File type
+-	Regular file
+d	Directory
+l	Symbolic link
+c	Character device
+b	Block device
+p	Named pipe
+s	Socket
+Exit codes:
+An exit code tells us whether a command executed successfully or failed.
+Exit code	Meaning
+0	Success
+1	General error
+2	Incorrect shell usage or syntax
+126	Command found but cannot execute
+127	Command not found
+128	Invalid exit argument
+128+N	Terminated by signal N, in common Bash conventions
+Check the last command's exit code:
+echo $?
+Example:
+ls
+echo $?
+Output:
+0
+Why do we use exit codes?
+They help shell scripts determine whether a command succeeded and decide what to do next.
+57. What is the difference between .bashrc and .bash_profile?
+Answer:
+Both are Bash configuration files.
+.bashrc	.bash_profile
+Usually used for interactive non-login Bash shells	Used for login Bash shells
+Configures aliases and shell functions	Configures login environment
+Commonly loaded when opening a new interactive terminal	Commonly loaded during login
+Example .bashrc:
+alias ll='ls -l'
+Now typing ll runs ls -l.
+Example .bash_profile:
+export JAVA_HOME=/usr/lib/jvm/java
+It is common to source .bashrc from .bash_profile so interactive settings are also available in login sessions.
+58. How do you change ports in Linux and how do you list ports?
+Answer:
+Port configuration depends on the service.
+For example, to change the SSH port:
+Open:
+sudo vi /etc/ssh/sshd_config
+Find:
+#Port 22
+Change to:
+Port 2222
+Validate the SSH configuration:
+sudo sshd -t
+Restart the service:
+sudo systemctl restart sshd
+Allow the new port in the firewall and cloud security group before disconnecting your existing session.
+List ports:
+ss -tulnp
+Check a specific port:
+ss -tulnp | grep 8080
+59. What are the different types of shells?
+Answer:
+A shell is a command interpreter used to communicate with Linux.
+Important shell types:
+Shell	Meaning
+Bash	Bourne Again Shell
+sh	Bourne Shell / POSIX-style shell
+ksh	Korn Shell
+csh	C Shell
+tcsh	Enhanced C Shell
+zsh	Z Shell
+fish	Friendly Interactive Shell
+Check current shell:
+echo $SHELL
+Check available shells:
+cat /etc/shells
+60. What do exit code 0, exit code 1 and exit status mean?
+Answer:
+Exit status indicates the result of a command or script.
+Exit code 0:
+Command executed successfully.
+ls
+echo $?
+Output: 0
+Exit code 1:
+Command or script reported a general error.
+Exit status:
+The numeric value returned when a command or script finishes.
+Example script:
+#!/bin/bash
+
+echo "Task completed"
+
+exit 0
+Another example:
+exit 1
+This returns failure status.
+Important: Zero normally means success; any non-zero status indicates some form of failure or special condition.
+61. What is an alias? Give an example.
+Answer:
+An alias is a shortcut for a Linux command.
+Example:
+alias ll='ls -l'
+Now execute:
+ll
+It runs:
+ls -l
+List aliases:
+alias
+Remove alias:
+unalias ll
+Make it permanent by adding the alias to:
+vi ~/.bashrc
+62. What is the nice command?
+Answer:
+The nice command is used to start a process with a particular CPU scheduling priority.
+Linux nice values generally range from:
+-20 to 19
+•	-20 – Highest scheduling priority.
+•	19 – Lowest scheduling priority.
+•	0 – Default nice value.
+Example:
+nice -n 10 ./script.sh
+This starts the script with a nice value of 10.
+Why do we use it?
+To run less important background jobs with lower CPU scheduling priority.
+63. What do uniq and sort mean?
+Answer:
+sort:
+Used to sort lines in a file.
+Example:
+sort file.txt
+Reverse sorting:
+sort -r file.txt
+Numeric sorting:
+sort -n numbers.txt
+uniq:
+Used to remove or identify repeated adjacent lines.
+Example:
+uniq file.txt
+Count duplicates:
+uniq -c file.txt
+Important: uniq only detects adjacent repeated lines. Therefore, we commonly use:
+sort file.txt | uniq
+64. What is the difference between nice and renice?
+Answer:
+Both commands are used to adjust process scheduling priority.
+nice	renice
+Sets priority when starting a process	Changes priority of an existing process
+Used before or during process startup	Used after process is running
+Nice example:
+nice -n 10 ./script.sh
+Renice example:
+renice 5 -p 1234
+This changes the nice value of PID 1234 to 5.
+65. How do you create a hidden file in Linux and how do you view it?
+Answer:
+In Linux, a filename beginning with a dot (.) is treated as hidden by normal directory listing commands.
+Create a hidden file:
+touch .hiddenfile
+View hidden files:
+ls -a
+View hidden files with details:
+ls -la
+Create a hidden directory:
+mkdir .mydirectory
+Note: Hidden files are not automatically secure. They are simply excluded from normal ls output.
+66. What is netstat? Why is it not used in all Linux flavours?
+Answer:
+netstat stands for Network Statistics.
+It is used to display network connections, listening ports, routing tables and network statistics.
+Example:
+netstat -tulnp
+Why is it not available on every Linux system?
+Because netstat belongs to the older net-tools package, which is not installed by default on many modern Linux distributions.
+Modern alternative:
+ss -tulnp
+Install netstat if required:
+Ubuntu:
+sudo apt install net-tools
+RHEL:
+sudo dnf install net-tools
+67. What are environment variables? Why do we use them?
+Answer:
+Environment variables are variables that are made available to processes started from the environment.
+They store configuration information used by applications and operating systems.
+Examples:
+HOME
+PATH
+USER
+SHELL
+JAVA_HOME
+Display all environment variables:
+env
+Display a specific variable:
+echo $PATH
+Create an environment variable:
+export NAME=Lokesh
+Real-time DevOps example:
+Java applications commonly use JAVA_HOME to identify the Java installation directory.
+68. How do you bring a background job to the foreground in Linux?
+Answer:
+We use the fg command.
+First, start a process in the background:
+sleep 500 &
+List jobs:
+jobs
+Bring the job to the foreground:
+fg
+For a specific job:
+fg %1
+Related commands:
+•	bg – Resume a suspended job in the background.
+•	fg – Bring a job to the foreground.
+•	jobs – List jobs in the current shell.
+69. How do you check whether disk space is running out? How do you delete large files?
+Answer:
+First, check disk usage:
+df -h
+Identify large directories:
+du -sh /var/*
+Find large files:
+find /var -type f -size +500M
+Find the largest files:
+find /var -type f -printf '%s %p\n' | sort -nr | head -10
+Steps to troubleshoot:
+1.	Check disk usage using df -h.
+2.	Identify which mount point is full.
+3.	Check directory usage using du -sh.
+4.	Find large files.
+5.	Identify whether files are required.
+6.	Archive, rotate or delete unnecessary files according to company policy.
+7.	Verify disk space again.
+Delete a confirmed unnecessary file:
+rm -i filename
+Important: Never blindly delete system files or active application logs. A deleted but still-open file may continue consuming disk space until its process closes it.
+70. How do you check RAM, file/directory space and disk space?
+Answer:
+Different commands are used for different resources.
+Command	Purpose
+free -h	Displays RAM and swap usage
+df -h	Displays filesystem disk usage
+du -sh directory	Displays directory size
+du -h file	Displays file size
+ls -lh	Displays file sizes in readable format
+lsblk	Displays disks and partitions
+top	Displays process and resource usage
+vmstat	Displays memory and system statistics
+Examples:
+Check RAM:
+free -h
+Check disk:
+df -h
+Check directory:
+du -sh /home
+Check file:
+ls -lh file.txt
+71. What is the difference between a process and a service?
+Answer:
+A process is a running instance of a program.
+A service is a program or system function that provides a specific service, often running in the background.
+Process	Service
+Running instance of a program	Managed system functionality
+Identified by PID	Often managed by systemd
+Can run in foreground or background	Commonly runs in background
+Can be started by a user or another process	Often starts automatically or on request
+Example:
+Apache web server:
+systemctl status httpd
+Check its processes:
+ps -ef | grep httpd
+Interview answer: A service is something that provides functionality, while a process is its running execution instance. One service can have multiple processes.
+72. Why do system logs vary by Linux flavours? Is /var/log available on all systems?
+Answer:
+Linux distributions use different logging services and configurations.
+Common logging systems:
+•	systemd-journald
+•	rsyslog
+•	syslog-ng
+Common log directory:
+/var/log/
+Important log files on many distributions:
+File	Purpose
+/var/log/messages	General system messages on many RHEL systems
+/var/log/syslog	General system logs on many Debian/Ubuntu systems
+/var/log/auth.log	Authentication logs on many Ubuntu systems
+/var/log/secure	Authentication logs on many RHEL systems
+/var/log/dmesg	Kernel messages on systems that maintain this file
+View systemd logs:
+journalctl
+Recent logs:
+journalctl -n 50
+Follow logs live:
+journalctl -f
+Why do logs vary?
+Different distributions configure logging differently, so log file names and locations can vary.
+/var/log is a standard and commonly used location, but not every log is necessarily stored there. Some logs are available only through journald.
+73. Tomcat is failing. How do you troubleshoot the service?
+Answer:
+As a DevOps engineer, I would follow a step-by-step troubleshooting process.
+Step 1: Check service status
+systemctl status tomcat
+Step 2: Check recent service logs
+journalctl -u tomcat -n 50
+Step 3: Check Tomcat application logs
+cd /opt/tomcat/logs
+tail -50 catalina.out
+Step 4: Check whether the port is already in use
+ss -tulnp | grep 8080
+Step 5: Check Java installation
+java -version
+Step 6: Check permissions
+ls -ld /opt/tomcat
+Step 7: Check disk space
+df -h
+Step 8: Restart the service after fixing the issue
+sudo systemctl restart tomcat
+Interview answer:
+First, I check the Tomcat service status. Then I review the recent system logs and Catalina logs. I check Java configuration, port conflicts, file permissions and disk space. After identifying and fixing the root cause, I restart Tomcat and verify that it is running.
+74. What is the use of the which command?
+Answer:
+The which command displays the executable path of a command found through the current PATH environment variable.
+Example:
+which java
+Output:
+/usr/bin/java
+Other examples:
+which python
+which bash
+which nginx
+Why do we use it?
+•	To identify command locations.
+•	To verify whether a command is available in PATH.
+•	To troubleshoot multiple software installations.
+Alternative:
+type -a java
+75. How do you compare two files? Give an example.
+Answer:
+We use the diff command to compare two files.
+Example:
+diff file1.txt file2.txt
+It displays the differences between the files.
+Other commands:
+cmp file1.txt file2.txt
+Compares files byte by byte.
+comm file1.txt file2.txt
+Compares sorted files line by line.
+Ignore case:
+diff -i file1.txt file2.txt
+76. How do you compare two directories?
+Answer:
+We use the diff command with the recursive option.
+diff -r dir1 dir2
+It compares files and subdirectories recursively.
+Another command:
+diff -rq dir1 dir2
+This reports which files differ or exist in only one directory.
+Using rsync for comparison without making changes:
+rsync -avnc dir1/ dir2/
+The -n option performs a dry run.
+77. How do you find files modified in the last 24 hours, last 15 minutes and last 12 days?
+Answer:
+We use the find command with time-related options.
+Last 24 hours:
+find /home -type f -mmin -1440
+Last 15 minutes:
+find /home -type f -mmin -15
+Last 12 days:
+find /home -type f -mtime -12
+Meaning:
+•	-mmin – Modification time in minutes.
+•	-mtime – Modification time in 24-hour periods.
+•	-15 – Less than 15 minutes ago.
+•	-12 – Less than 12 days ago.
+Note: -mtime uses rounded 24-hour periods, so use -mmin when you need an exact rolling time window.
+78. What are soft links and hard links? Why do we use them?
+Answer:
+A link is a reference to a file.
+There are two major types:
+1. Hard link
+A hard link is another directory entry pointing to the same inode as the original file.
+Create:
+ln file.txt hardlink.txt
+2. Soft link
+A soft link, also called a symbolic link, points to the path of another file or directory.
+Create:
+ln -s file.txt softlink.txt
+Why do we use links?
+•	To access files from multiple locations.
+•	To avoid unnecessary duplicate data.
+•	To create shortcuts to files and directories.
+•	To organize application paths.
+79. What is the difference between hard link and soft link?
+Answer:
+Hard link	Soft link
+Points to the same inode	Points to a pathname
+Shares the same file data	Contains a reference to the target path
+Usually cannot cross file systems	Can cross file systems
+Cannot normally link directories	Can link directories
+Remains usable if original filename is deleted	Can become broken if target path is removed
+Has the same inode number as original	Has a different inode number
+Example:
+ln file.txt hard.txt
+ln -s file.txt soft.txt
+Check inode numbers:
+ls -li
+Interview answer: A hard link shares the same inode as the original file, whereas a soft link points to the original file's pathname.
+80. What is hostnamectl? What is its purpose?
+Answer:
+hostnamectl is a Linux command used to view and manage the system hostname.
+Check hostname:
+hostnamectl
+Display only hostname:
+hostnamectl hostname
+Change hostname:
+sudo hostnamectl set-hostname devops-server
+Verify:
+hostname
+Why do we use it?
+•	To identify servers.
+•	To change server names.
+•	To manage static hostnames.
+•	To identify operating system and kernel details.
+Real-time DevOps example: In an organization, we may have different servers named dev-server, test-server, stage-server and prod-server. Hostnames help administrators identify the correct server.
+Part 3: Linux Commands, Shell Scripting and File Management (Questions 81–120)
+81. How do you display date and calendar in Linux?
+Answer:
+We use the date and cal commands.
+Display current date and time:
+date
+Display calendar:
+cal
+Display a particular month:
+cal 11 2026
+Display the entire year:
+cal 2026
+Custom date format:
+date +"%d-%m-%Y"
+Output:
+08-11-2026
+82. What are special variables in shell scripting?
+Answer:
+Special variables are predefined variables used to access script arguments and execution information.
+Variable	Purpose
+$0	Script name
+$1	First argument
+$2	Second argument
+$#	Number of arguments
+$@	All arguments
+$*	All arguments
+$?	Previous command exit status
+$$	Current shell PID
+$!	Last background process PID
+$_	Previous command's last argument in Bash
+Example:
+#!/bin/bash
+
+echo "Script name: $0"
+echo "First value: $1"
+echo "Total arguments: $#"
+echo "All values: $@"
+83. What do you mean by syntax?
+Answer:
+Syntax means the rules and structure used to write commands or programs correctly.
+In shell scripting, every command must follow the correct syntax.
+Example of correct syntax:
+if [ $a -gt $b ]
+then
+    echo "A is greater"
+fi
+Incorrect syntax:
+if [ $a -gt $b
+Here, the closing bracket and fi are missing.
+Interview answer: Syntax refers to the rules that define how commands and statements must be written in a programming language.
+84. What is an if condition? Give an example.
+Answer:
+An if condition is used to execute commands based on whether a condition is true or false.
+Syntax:
+if [ condition ]
+then
+    commands
+fi
+Example:
+#!/bin/bash
+
+a=10
+b=20
+
+if [ $a -lt $b ]
+then
+    echo "A is smaller than B"
+fi
+Output:
+A is smaller than B
+Important comparison operators:
+Operator	Meaning
+-eq	Equal
+-ne	Not equal
+-gt	Greater than
+-lt	Less than
+-ge	Greater than or equal
+-le	Less than or equal
+85. What are shell, shell scripting, shebang and the meaning of $ in the terminal?
+Answer:
+Shell: A command interpreter between the user and the operating system.
+Shell scripting: Writing multiple commands in a file to automate tasks.
+Shebang:
+The first line of a script identifies the interpreter used to execute it.
+Example:
+#!/bin/bash
+Meaning of $:
+The dollar sign is used to access variable values.
+Example:
+name="Lokesh"
+echo $name
+Output:
+Lokesh
+When you see $ in a Linux command prompt, it commonly indicates a non-root user's shell. The root prompt commonly uses #. These are prompt conventions, not special shell operators.
+86. What are special variables in shell scripting? Why do we use them?
+Answer:
+They are predefined variables used to obtain information about scripts and commands.
+Example:
+#!/bin/bash
+
+echo "Script name: $0"
+echo "Argument 1: $1"
+echo "Argument count: $#"
+echo "Exit status: $?"
+echo "Current PID: $$"
+Purpose:
+•	Receive user input.
+•	Identify the script name.
+•	Count arguments.
+•	Check command success or failure.
+•	Identify process IDs.
+87. What is the meaning of ps -ef and ps -u?
+Answer:
+ps stands for Process Status.
+It displays information about running processes.
+1. ps -ef
+ps -ef
+Displays all processes in a full-format listing.
+Common columns:
+•	UID – Process owner.
+•	PID – Process ID.
+•	PPID – Parent process ID.
+•	C – CPU usage information.
+•	STIME – Start time.
+•	TTY – Terminal.
+•	TIME – CPU time used.
+•	CMD – Command.
+2. ps -u
+ps -u username
+Displays processes associated with a particular user in a user-oriented format.
+Example:
+ps -u root
+88. What is the difference between vim and touch?
+Answer:
+vim	touch
+Text editor	File creation and timestamp command
+Used to create and edit file contents	Used to create empty files
+Can modify existing content	Does not edit file contents
+Supports search and replacement	Supports timestamp modification
+Examples:
+Create/edit:
+vim file.txt
+Create empty file:
+touch file.txt
+89. What is the role of shell scripting in DevOps?
+Answer:
+Shell scripting plays an important role in DevOps because it automates repetitive Linux administration and deployment activities.
+Real-time organizational use cases:
+1.	Server health monitoring.
+2.	Application deployment.
+3.	Backup automation.
+4.	Log monitoring.
+5.	Disk space monitoring.
+6.	User management.
+7.	Service management.
+8.	Automated cleanup.
+9.	CI/CD pipeline support.
+10.	Troubleshooting.
+Example: Disk monitoring script
+#!/bin/bash
+
+df -h
+A more useful monitoring script:
+#!/bin/bash
+
+usage=$(df -P / | awk 'NR==2 {print $5}' | tr -d '%')
+
+if [ "$usage" -gt 80 ]
+then
+    echo "Warning: Disk usage is high"
+else
+    echo "Disk usage is normal"
+fi
+Interview answer: In DevOps, shell scripting helps automate repetitive tasks, reduce manual work, improve deployment consistency and monitor production servers.
+90. Difference between du -h, df -h, df -ef and free -h?
+Answer:
+Command	Purpose
+du -h	Displays file/directory disk usage
+df -h	Displays filesystem disk usage
+df -i	Displays inode usage
+free -h	Displays RAM and swap usage
+Note: df -ef is not a standard command combination for checking disk space. You may be referring to df -h or df -i.
+Examples:
+du -sh /home
+df -h
+df -i
+free -h
+Easy way to remember:
+•	du – How much space a particular file or directory uses.
+•	df – How much space is available on a filesystem.
+•	df -i – How many inodes are used and available.
+•	free – How much RAM and swap memory are available.
+91. Difference between top and htop?
+Answer:
+Both commands are used to monitor running processes and system resources.
+top	htop
+Traditional process monitor	Interactive process monitor
+Basic terminal interface	More user-friendly interface
+Usually available by default	May require installation
+Supports process monitoring	Supports convenient process selection and management
+Commands:
+top
+htop
+Install htop:
+Ubuntu:
+sudo apt install htop
+RHEL:
+sudo dnf install htop
+92. Why do we use ps aux | grep processname?
+Answer:
+This command is used to find a particular process running on the server.
+Example:
+ps aux | grep java
+Meaning:
+•	ps – Displays processes.
+•	a – Displays processes associated with terminals across users.
+•	u – Displays user-oriented format.
+•	x – Includes processes without controlling terminals.
+•	| – Passes output to another command.
+•	grep java – Searches for Java-related lines.
+Why do we use it?
+Suppose Tomcat is running on your server. You want to identify its process ID.
+ps aux | grep tomcat
+Better alternative to avoid matching grep itself:
+pgrep -af tomcat
+93. What do you mean by host, hostname and IP address?
+Answer:
+Host: A device or system connected to a network.
+Hostname: The name assigned to a system to identify it.
+IP address: A numerical network address used to identify and communicate with a device.
+Example:
+Hostname: webserver
+Private IP: 192.168.1.10
+Public IP: 203.0.113.10
+Commands:
+hostname
+hostname -I
+ip addr
+94. How do you find which file and directory consume more space?
+Answer:
+Find the largest directories:
+du -sh /home/*
+Find the largest files:
+find /home -type f -printf '%s %p\n' | sort -nr | head -10
+Find the largest directories at the top level:
+du -xhd1 /home | sort -hr
+Check overall disk usage:
+df -h
+For an interactive view, you can also use:
+ncdu /home
+95. Difference between absolute path and relative path.
+Answer:
+Absolute path:
+A complete path starting from the root directory /.
+Example:
+/home/lokesh/script.sh
+Relative path:
+A path specified based on the current working directory.
+Example:
+script.sh
+Or:
+../script.sh
+Difference:
+Absolute path	Relative path
+Starts from /	Starts from current directory
+Complete location	Depends on current location
+Works regardless of current directory	May need adjustment when directory changes
+96. Give a command to create five files with similar names and five files with different names.
+Answer:
+Five files with similar names:
+touch file{1..5}.txt
+Creates:
+file1.txt
+file2.txt
+file3.txt
+file4.txt
+file5.txt
+Five files with different names:
+touch apple.txt mango.txt banana.txt orange.txt grapes.txt
+Creates five different files.
+97. How do you create five directories with similar and different names?
+Answer:
+Similar directory names:
+mkdir dir{1..5}
+Creates:
+dir1
+dir2
+dir3
+dir4
+dir5
+Different directory names:
+mkdir dev test stage prod backup
+Creates five directories with different names.
+98. List some file viewing commands.
+Answer:
+Important Linux file viewing commands:
+Command	Purpose
+cat	Displays complete content
+less	Displays content page by page
+more	Displays content page by page
+head	Displays first lines
+tail	Displays last lines
+tac	Displays lines in reverse
+nl	Displays numbered lines
+vim	Opens file in an editor
+sed	Displays or modifies selected content
+awk	Extracts and processes text
+99. List some commands that display file contents.
+Answer:
+These are the common commands:
+cat file.txt
+more file.txt
+less file.txt
+head file.txt
+tail file.txt
+tac file.txt
+nl file.txt
+Display selected lines:
+sed -n '1,5p' file.txt
+Display a particular column:
+awk '{print $2}' file.txt
+100. How do you list all users on the server?
+Answer:
+We use /etc/passwd or getent passwd.
+Method 1:
+cat /etc/passwd
+Method 2:
+getent passwd
+Display only usernames:
+cut -d: -f1 /etc/passwd
+Count users:
+getent passwd | wc -l
+Why use getent?
+It can retrieve users from configured account databases, including local files and directory services such as LDAP.
+101. Which command is used to find private and public IP addresses?
+Answer:
+Private IP:
+ip addr
+hostname -I
+Public IP:
+curl ifconfig.me
+Summary:
+Command	Information
+ip addr	Network interface addresses
+hostname -I	System IP addresses
+curl ifconfig.me	Public IP seen by an external service
+102. What is the use of the set command?
+Answer:
+The set command is used to display or modify shell settings and positional parameters.
+Important uses:
+Display shell variables:
+set
+Enable debugging:
+set -x
+Stop when an eligible command fails:
+set -e
+Treat unset variables as errors:
+set -u
+Enable pipeline failure detection:
+set -o pipefail
+Display positional parameters:
+set -- Linux AWS DevOps
+echo "$1"
+Output:
+Linux
+103. How do you list old files and directories?
+Answer:
+We use the find command.
+Find files modified more than 30 days ago:
+find /home -type f -mtime +30
+Find directories modified more than 30 days ago:
+find /home -type d -mtime +30
+Find both files and directories:
+find /home -mtime +30
+Important: Modification time and last access time are different. Use -mtime for modification time and -atime for access time.
+104. Give the command that displays lines without the matching string.
+Answer:
+We use the grep -v command.
+Example:
+grep -v "error" file.txt
+This displays lines that do not contain the word error.
+Ignore uppercase/lowercase differences:
+grep -vi "error" file.txt
+Use case: To identify log entries that do not contain a particular error message.
+105. List important grep flags.
+Answer:
+Flag	Purpose
+-i	Ignore case
+-v	Display non-matching lines
+-n	Display line numbers
+-c	Count matching lines
+-l	Display matching filenames
+-r	Search recursively
+-w	Match whole words
+-e	Search multiple patterns
+-o	Display only matched text
+-A	Display lines after match
+-B	Display lines before match
+-C	Display surrounding lines
+Examples:
+grep -i "error" file.txt
+grep -n "error" file.txt
+grep -v "success" file.txt
+grep -c "failed" file.txt
+106. What is the meaning of tree -3 directoryname?
+Answer:
+The tree command displays directories and files in a tree-like structure.
+Example:
+tree -L 3 directoryname
+It displays the directory structure up to three levels deep.
+Note: The standard option is -L 3, not -3.
+Other commands:
+tree
+tree -d
+tree -L 2
+•	tree – Displays files and directories.
+•	tree -d – Displays only directories.
+•	tree -L 2 – Limits display to two levels.
+107. How do you find files or directories between 1 MB and 2 MB?
+Answer:
+Use the find command with the size option.
+Find files between 1 MB and 2 MB:
+find /home -type f -size +1M -size -2M
+Find directories by their apparent size:
+find /home -type d -exec du -sm {} + | awk '$1 >= 1 && $1 <= 2'
+Meaning:
+•	-type f – Search regular files.
+•	-size +1M – Larger than 1 MiB.
+•	-size -2M – Smaller than 2 MiB.
+Note: find -size uses rounded-up filesystem blocks. For precise byte ranges, use -size +1048575c -size -2097153c.
+108. How do you give sudo permission to a user?
+Answer:
+We use the sudoers configuration to provide administrative privileges.
+Ubuntu/Debian:
+sudo usermod -aG sudo username
+RHEL/CentOS/Rocky:
+sudo usermod -aG wheel username
+Check group membership:
+groups username
+For custom permissions, edit the sudoers file safely:
+sudo visudo
+Example:
+username ALL=(ALL:ALL) ALL
+This gives the user permission to run commands as any user, including root, through sudo.
+109. Difference between tac and cat?
+Answer:
+cat	tac
+Displays file lines in normal order	Displays file lines in reverse order
+Reads from beginning to end	Displays from last line to first
+Used for normal viewing	Used for reverse viewing
+Example:
+cat file.txt
+tac file.txt
+110. Give me the command to print the sixth column of a file.
+Answer:
+Using awk:
+awk '{print $6}' file.txt
+Using cut:
+cut -d ' ' -f6 file.txt
+Important: awk is usually better for whitespace-separated columns because it handles multiple spaces and tabs more conveniently.
+For colon-separated files:
+cut -d ':' -f6 /etc/passwd
+111. How do you search multiple strings in a file?
+Answer:
+We use grep -e.
+Example:
+grep -e "error" -e "failed" file.txt
+This displays lines matching either error or failed.
+Alternative:
+grep -E "error|failed|warning" file.txt
+Search case-insensitively:
+grep -iE "error|failed|warning" file.txt
+112. List differences between cut and awk.
+Answer:
+cut	awk
+Used for simple extraction	Used for advanced text processing
+Extracts characters or fields	Extracts and processes fields
+Uses delimiters	Uses field separators
+Limited conditions	Supports conditions and calculations
+Simple syntax	More flexible syntax
+Example using cut:
+cut -d ':' -f1 /etc/passwd
+Example using awk:
+awk -F ':' '{print $1}' /etc/passwd
+Calculate a total:
+awk '{sum += $1} END {print sum}' numbers.txt
+113. What is umask? How do you change it temporarily and permanently?
+Answer:
+Umask controls default permissions for newly created files and directories.
+Check current value:
+umask
+Change temporarily:
+umask 027
+This affects the current shell and its child processes.
+Change permanently for one user:
+Open:
+vi ~/.bashrc
+Add:
+umask 027
+Save and reload:
+source ~/.bashrc
+For login-wide or system-wide settings, use the appropriate profile configuration for your distribution.
+Common default examples:
+User	Typical umask	New file	New directory
+Normal user	022	644	755
+Root	022 (often)	644	755
+Restricted setup	027	640	750
+Private setup	077	600	700
+There is no universal guaranteed umask for root or normal users; it depends on system configuration.
+114. What is an inode? Why do we use it?
+Answer:
+An inode is a data structure in a Linux filesystem that stores metadata about a file.
+It contains information such as:
+•	File permissions.
+•	Owner ID.
+•	Group ID.
+•	File size.
+•	Timestamps.
+•	Disk block locations.
+•	Link count.
+The filename is stored in the directory entry, which points to the inode.
+Check inode number:
+ls -i file.txt
+List filesystem inode usage:
+df -i
+Display detailed inode information:
+stat file.txt
+Why do we use inodes?
+Linux uses inodes to track and manage file metadata and locate file contents on storage.
+115. If your server is full, how do you troubleshoot and free space?
+Answer:
+As a DevOps engineer, I follow these steps.
+Step 1: Check filesystem usage
+df -h
+Step 2: Check inode usage
+df -i
+Step 3: Identify large directories
+du -xhd1 / | sort -hr
+Step 4: Find large files
+find /var -type f -size +500M
+Step 5: Check log files
+du -sh /var/log/*
+Step 6: Identify deleted files still held open
+sudo lsof +L1
+Step 7: Clean unnecessary files
+Examples include old backups, expired archives, temporary files and rotated logs, after confirming they are not required.
+Step 8: Verify
+df -h
+df -i
+Interview answer:
+First, I check disk and inode utilization. Then I identify the affected mount point, find large files and directories, inspect logs and backups, and safely clean unnecessary data. Finally, I verify available disk space and investigate the root cause to prevent recurrence.
+116. What is the use of curl ifconfig.me, ifconfig and uname?
+Answer:
+1. curl ifconfig.me
+curl ifconfig.me
+Displays the public IP address observed by the external service.
+2. ifconfig
+ifconfig
+Displays network interface information on systems where the net-tools package is installed.
+Modern alternative:
+ip addr
+3. uname
+uname
+Displays kernel name.
+uname -a
+Displays kernel and system information.
+Summary:
+Command	Purpose
+curl ifconfig.me	Public IP
+ifconfig	Network interface details
+uname -a	Kernel and system details
+117. What is the purpose of the pipe command? Give similar working commands.
+Answer:
+The pipe operator | sends the output of one command as the input of another command.
+Example:
+ps -ef | grep java
+Other examples:
+Find files containing an error:
+cat app.log | grep error
+Count running processes:
+ps -ef | wc -l
+Sort users:
+cut -d: -f1 /etc/passwd | sort
+Similar operators and concepts:
+•	> – Redirect output to a file.
+•	>> – Append output to a file.
+•	< – Read input from a file.
+•	| – Connect commands through a pipe.
+These operators are related but do different jobs.
+118. How do you rename a file and directory?
+Answer:
+We use the mv command for both operations.
+Rename a file:
+mv old.txt new.txt
+Rename a directory:
+mv olddir newdir
+Move a file to another directory:
+mv file.txt /home/user/
+Move a directory:
+mv dir1 /home/user/
+119. How do you find files modified in the last 30 days?
+Answer:
+Use:
+find /home -type f -mtime -30
+This finds regular files modified within the last 30 days.
+Find directories:
+find /home -type d -mtime -30
+Find both:
+find /home -mtime -30
+120. How do you find all empty files and delete them?
+Answer:
+Find empty files:
+find /home -type f -empty
+Delete empty files:
+find /home -type f -empty -delete
+Meaning:
+•	find – Searches files and directories.
+•	/home – Search location.
+•	-type f – Regular files only.
+•	-empty – Files with zero bytes.
+•	-delete – Deletes matching files.
+Important: First run the command without -delete to verify the files before deleting them.
+Part 4: User Management, Networking, Permissions and Troubleshooting (Questions 121–160)
+121. How do you find which file or directory occupies more space?
+Answer:
+To identify large files:
+find /home -type f -printf '%s %p\n' | sort -nr | head -10
+To identify large directories:
+du -sh /home/*
+To sort directories by size:
+du -h /home/* | sort -hr
+Check overall filesystem usage:
+df -h
+122. How do you create a user, add the user to a DevOps group and remove the user from the group?
+Answer:
+Step 1: Create a group
+sudo groupadd DevOps
+Step 2: Create a user
+sudo useradd -m lokesh
+Step 3: Set password
+sudo passwd lokesh
+Step 4: Add the user to the DevOps group
+sudo usermod -aG DevOps lokesh
+Step 5: Verify group membership
+groups lokesh
+Step 6: Remove the user from the group
+sudo gpasswd -d lokesh DevOps
+Important: The -aG option adds supplementary group membership without removing existing supplementary groups.
+123. How do you list all users on the server?
+Answer:
+Command 1:
+cat /etc/passwd
+Command 2:
+getent passwd
+Display only usernames:
+cut -d: -f1 /etc/passwd
+Count users:
+getent passwd | wc -l
+Note: This includes system accounts, not just human users.
+124. How do you search for a particular string in a file?
+Answer:
+We use the grep command.
+Example:
+grep "error" application.log
+Search without case sensitivity:
+grep -i "error" application.log
+Display line numbers:
+grep -n "error" application.log
+Search recursively:
+grep -r "error" /var/log/
+125. How do you count the number of lines, words and characters in a file?
+Answer:
+We use the wc command.
+Count lines:
+wc -l file.txt
+Count words:
+wc -w file.txt
+Count bytes:
+wc -c file.txt
+Count characters:
+wc -m file.txt
+Count lines, words and bytes together:
+wc file.txt
+126. How do you print your name on the terminal?
+Answer:
+We use the echo or printf command.
+Using echo:
+echo "Lokesh"
+Using printf:
+printf "Lokesh\n"
+Inside a shell script:
+#!/bin/bash
+
+name="Lokesh"
+echo "My name is $name"
+127. How do you count the number of empty lines in a file?
+Answer:
+We use grep with a regular expression.
+grep -c '^$' file.txt
+Meaning:
+•	^ – Beginning of line.
+•	$ – End of line.
+•	^$ – Empty line.
+•	-c – Counts matching lines.
+For whitespace-only lines also:
+grep -c '^[[:space:]]*$' file.txt
+128. How do you find files modified more than 60 days ago?
+Answer:
+find /home -type f -mtime +60
+Find directories:
+find /home -type d -mtime +60
+Find both:
+find /home -mtime +60
+The +60 option identifies items whose modification age is greater than approximately 60 complete 24-hour periods.
+129. How do you give a user sudoers permission?
+Answer:
+Ubuntu/Debian:
+sudo usermod -aG sudo username
+RHEL/CentOS/Rocky:
+sudo usermod -aG wheel username
+Alternatively, edit the sudoers file:
+sudo visudo
+Add:
+username ALL=(ALL:ALL) ALL
+Verify:
+sudo -l -U username
+130. What is the difference between sed and grep?
+Answer:
+Both commands are used for text processing.
+grep	sed
+Mainly searches for patterns	Mainly edits and transforms text
+Displays matching lines	Can replace, delete or print selected lines
+Used for log searching	Used for text modification
+Does not normally modify original files	Can modify files using -i
+grep example:
+grep "error" file.txt
+sed example:
+sed 's/error/success/g' file.txt
+This replaces error with success in the output.
+Modify the original file:
+sed -i 's/error/success/g' file.txt
+131. What is a package manager? Why do we use it in Linux?
+Answer:
+A package manager is a software management tool used to install, update, remove and manage software.
+Examples:
+Ubuntu:
+sudo apt install nginx
+RHEL:
+sudo dnf install httpd
+Check installed packages:
+rpm -qa
+Purpose:
+•	Software installation.
+•	Software updates.
+•	Dependency management.
+•	Software removal.
+•	Security patch management.
+132. How do you check the response time for ping? How do you exit?
+Answer:
+The ping command checks network connectivity and measures round-trip time.
+Example:
+ping google.com
+Output may show:
+time=20 ms
+This means the round-trip time for that packet was approximately 20 milliseconds.
+Send only four packets:
+ping -c 4 google.com
+Exit continuous ping:
+Ctrl+C
+Check average response time in the final ping statistics.
+133. What is the difference between TCP and UDP?
+Answer:
+TCP	UDP
+Connection-oriented	Connectionless
+Reliable delivery	No delivery guarantee
+Maintains packet order	No guaranteed packet order
+Uses acknowledgements	Does not use acknowledgements
+More protocol overhead	Less protocol overhead
+SSH, HTTPS	DNS queries, live voice/video
+Example:
+TCP is suitable when complete and ordered delivery matters. UDP is useful when low latency is important.
+134. How do you get port details in Linux?
+Answer:
+We use these commands:
+List listening ports:
+ss -tuln
+Display processes using ports:
+sudo ss -tulnp
+Using netstat:
+sudo netstat -tulnp
+Check a particular port:
+ss -tulnp | grep 8080
+Find which process is using port 8080:
+sudo lsof -i :8080
+135. What is the meaning of netstat -tulp?
+Answer:
+The command displays TCP and UDP listening sockets.
+netstat -tulp
+Meaning:
+Option	Meaning
+-t	TCP connections
+-u	UDP connections
+-l	Listening sockets
+-p	Process/program information
+To display numeric port numbers without resolving service names, use:
+sudo netstat -tulnp
+Modern alternative:
+sudo ss -tulnp
+136. How do you change ownership of a file?
+Answer:
+We use the chown command.
+Change owner:
+sudo chown lokesh file.txt
+Change group:
+sudo chgrp DevOps file.txt
+Change owner and group together:
+sudo chown lokesh:DevOps file.txt
+Change recursively:
+sudo chown -R lokesh:DevOps /home/project
+137. How do you give executable permission to a file?
+Answer:
+Use chmod.
+chmod +x script.sh
+Owner only:
+chmod u+x script.sh
+Group only:
+chmod g+x script.sh
+Everyone:
+chmod a+x script.sh
+Verify:
+ls -l script.sh
+138. List some important networking ports.
+Answer:
+A port number identifies a communication endpoint for a network service.
+Service	Port
+SSH	22
+FTP	21
+SFTP	22
+Telnet	23
+SMTP	25
+DNS	53
+DHCP server	67
+DHCP client	68
+HTTP	80
+POP3	110
+NTP	123
+IMAP	143
+HTTPS	443
+SMB	445
+MySQL	3306
+PostgreSQL	5432
+Redis	6379
+MongoDB	27017
+139. Give the port numbers of SSH, HTTP, HTTPS, DNS, FTP, Jenkins, Tomcat, Docker and Kubernetes.
+Answer:
+Service	Common/default port
+SSH	22
+HTTP	80
+HTTPS	443
+DNS	53
+FTP	21 (control), 20 (traditional active-mode data)
+Jenkins	8080
+Tomcat	8080
+Docker Engine API	2375 (unencrypted), 2376 (TLS)
+Kubernetes API Server	6443
+Kubernetes etcd	2379–2380
+Kubernetes Kubelet	10250
+Important interview point:
+Docker does not have one universal application port. Docker containers can expose different ports. Jenkins and Tomcat commonly use 8080 by default, but their ports can be changed.
+140. How do you kill a process? What is the meaning of -9 and -15?
+Answer:
+We use the kill command to send a signal to a process.
+First, find PID:
+ps -ef | grep java
+Gracefully terminate:
+kill -15 1234
+Forcefully terminate:
+kill -9 1234
+Difference:
+Signal	Meaning
+-15	SIGTERM – Requests graceful termination
+-9	SIGKILL – Forcefully terminates the process
+Interview answer: I first try SIGTERM so the application can shut down cleanly. If it does not respond, I consider SIGKILL after checking the impact.
+141. How is tee different from head and tail?
+Answer:
+tee	head	tail
+Displays and saves input	Displays first lines	Displays last lines
+Used for logging output	Used to inspect file beginning	Used to inspect recent logs
+Supports append with -a	Supports -n	Supports -n and -f
+Examples:
+ls -l | tee output.txt
+head -n 5 file.txt
+tail -n 5 file.txt
+142. How do you list all processes running on the server?
+Answer:
+Using ps:
+ps -ef
+Alternative:
+ps aux
+Live monitoring:
+top
+Interactive monitoring:
+htop
+List process IDs:
+pgrep -a .
+143. How do you list inodes and check hidden files?
+Answer:
+List inode numbers:
+ls -i
+Detailed inode information:
+stat file.txt
+Check inode availability:
+df -i
+Check hidden files:
+ls -a
+Detailed listing including hidden files:
+ls -la
+Hidden files generally start with a dot.
+144. How do you create and delete hard links and soft links?
+Answer:
+Create a hard link:
+ln file.txt hardlink.txt
+Create a soft link:
+ln -s file.txt softlink.txt
+Delete a hard link:
+rm hardlink.txt
+Delete a soft link:
+rm softlink.txt
+Verify:
+ls -li
+Remember: Removing a hard link does not delete the file's data as long as another hard link still references the inode.
+145. How do you check whether a particular port is available or not?
+Answer:
+There are different methods.
+Method 1: Using ss
+sudo ss -tulnp | grep :8080
+If a listening service is shown, the port is already in use.
+Method 2: Using nc
+nc -zv localhost 8080
+This checks whether a TCP connection can be made to that port.
+Method 3: Using lsof
+sudo lsof -i :8080
+Important: A successful connection means a service is reachable, not necessarily that a port is available for a new application to bind.
+146. What happens when inodes are full on a server?
+Answer:
+An inode stores file metadata and helps the filesystem track files.
+If all available inodes are used, the filesystem may not allow creation of new files, even when free disk space is available.
+Symptoms:
+•	Cannot create new files.
+•	Applications cannot write logs.
+•	Temporary files cannot be created.
+•	Some services may fail.
+Check inode usage:
+df -i
+Find directories containing many files:
+find /var -xdev -type f | cut -d/ -f1-4 | sort | uniq -c | sort -nr | head
+Troubleshooting:
+1.	Identify the affected filesystem.
+2.	Find directories containing excessive small files.
+3.	Identify unnecessary temporary files or old cache files.
+4.	Safely clean unnecessary files.
+5.	Verify using df -i.
+147. What is the meaning of who, whoami, uname -a and cat -n file?
+Answer:
+who:
+Displays users currently logged in.
+who
+whoami:
+Displays the current effective username.
+whoami
+uname -a:
+Displays kernel and system information.
+uname -a
+cat -n:
+Displays file content with line numbers.
+cat -n file.txt
+148. How do you check OS details?
+Answer:
+cat /etc/os-release
+hostnamectl
+uname -a
+lsb_release -a
+Difference:
+•	/etc/os-release – Linux distribution and version.
+•	hostnamectl – Hostname, OS and kernel details.
+•	uname -a – Kernel and architecture details.
+•	lsb_release -a – Distribution details, when installed.
+149. What is SSH? What is SCP? Give examples.
+Answer:
+SSH – Secure Shell
+SSH is used to connect securely to a remote Linux server.
+Example:
+ssh username@192.168.1.10
+Specify a port:
+ssh -p 2222 username@192.168.1.10
+SCP – Secure Copy Protocol
+SCP is used to securely copy files between systems using SSH.
+Copy local file to remote server:
+scp file.txt username@192.168.1.10:/home/username/
+Copy remote file to local server:
+scp username@192.168.1.10:/home/username/file.txt .
+Copy directory:
+scp -r folder username@192.168.1.10:/home/username/
+150. How do you start and stop services on Linux servers?
+Answer:
+We use systemctl on systemd-based Linux distributions.
+Start:
+sudo systemctl start nginx
+Stop:
+sudo systemctl stop nginx
+Restart:
+sudo systemctl restart nginx
+Check status:
+sudo systemctl status nginx
+Enable at boot:
+sudo systemctl enable nginx
+Disable at boot:
+sudo systemctl disable nginx
+151. How do you check swap memory?
+Answer:
+We use the following commands:
+free -h
+swapon --show
+cat /proc/swaps
+vmstat
+These commands help identify swap usage and availability.
+152. What is swap memory? What is its purpose in Linux?
+Answer:
+Swap is disk space used as an extension of virtual memory.
+When physical RAM becomes heavily utilized, Linux can move less-active memory pages to swap space.
+Why do we use it?
+•	Provides additional virtual memory capacity.
+•	Helps manage memory pressure.
+•	Can reduce the likelihood of immediate out-of-memory failures.
+•	Supports hibernation on systems configured for it.
+Check swap:
+free -h
+swapon --show
+Important: Swap is much slower than RAM. It is not a replacement for sufficient physical memory.
+153. Which command is used to restrict file permissions?
+Answer:
+We use chmod.
+Remove write permission from everyone:
+chmod a-w file.txt
+Give read-only permission to everyone:
+chmod 444 file.txt
+Give owner read/write permission only:
+chmod 600 file.txt
+Remove executable permission from the owner:
+chmod u-x file.txt
+154. How do you apply sticky bit with an example?
+Answer:
+Sticky bit is used to protect files in shared writable directories.
+Example:
+mkdir shared
+chmod 1777 shared
+Check:
+ls -ld shared
+Expected permissions:
+drwxrwxrwt
+The final t indicates sticky bit.
+Real-time example: /tmp uses sticky bit so users can create temporary files without freely deleting other users' files.
+155. How do you identify processes consuming high CPU and memory?
+Answer:
+Check CPU and memory usage:
+top
+Sort processes by CPU:
+ps aux --sort=-%cpu | head -10
+Sort processes by memory:
+ps aux --sort=-%mem | head -10
+Alternative:
+htop
+Interview answer: I use top or htop to identify resource-intensive processes. I investigate the application, logs and resource usage before deciding whether to restart or terminate the process.
+156. How do you list users logged in to the server?
+Answer:
+who
+Displays logged-in users.
+w
+Displays logged-in users and their activities.
+users
+Displays logged-in usernames.
+who -u
+Displays login information including idle time and process information where available.
+157. How do you remove only executable permission of a user?
+Answer:
+Use:
+chmod u-x file.sh
+Meaning:
+•	u – Owner/user.
+•	- – Remove permission.
+•	x – Execute permission.
+Remove execute permission from the group:
+chmod g-x file.sh
+Remove execute permission from others:
+chmod o-x file.sh
+158. What is the difference between SCP and RSYNC?
+Answer:
+SCP	RSYNC
+Copies files	Synchronizes files and directories
+Simple transfer	Efficient repeated synchronization
+Transfers file contents	Can transfer only changed portions
+Does not provide incremental synchronization	Supports incremental synchronization
+Uses SSH	Can use SSH
+Examples:
+scp file.txt user@server:/home/user/
+rsync -avz file.txt user@server:/home/user/
+159. What is the difference between wget and xargs?
+Answer:
+wget:
+Used to download files from the internet or web servers.
+Example:
+wget https://example.com/file.zip
+xargs:
+Used to take input from standard input and pass it as arguments to another command.
+Example:
+find /home -name "*.tmp" | xargs rm
+Safer version for filenames containing spaces or special characters:
+find /home -name "*.tmp" -print0 | xargs -0 rm
+Difference:
+wget	xargs
+Downloads files	Passes input as command arguments
+Network utility	Command-line utility
+Uses URLs	Uses standard input
+160. What is grep? Explain the following commands.
+Answer:
+grep searches for patterns in files.
+Let's understand each command.
+1. Search empty lines
+grep '^$' filename
+Displays empty lines.
+2. Find and delete empty files
+find . -type f -empty -delete
+Finds zero-byte regular files and deletes them.
+3. Search a particular string
+grep "Linux" filename
+Displays lines containing Linux.
+4. Search multiple strings
+grep -e "Linux" -e "AWS" filename
+Displays lines containing either Linux or AWS.
+5. Count matching lines
+grep -c "Linux" filename
+Displays the number of matching lines.
+6. Display filenames containing a string recursively
+grep -lR "Linux" /home/
+Displays filenames containing Linux under /home.
+7. Display matching line numbers
+grep -n "Linux" filename
+8. Display non-matching lines
+grep -v "Linux" filename
+9. Search lines starting with a string
+grep "^Linux" filename
+10. Search lines ending with a string
+grep "Linux$" filename
+Remember these two symbols:
+•	^ – Beginning of a line.
+•	$ – End of a line.
+Part 5: Find, Grep, User Management, Networking and Shell Scripting (Questions 161–200)
+161. Which grep flag finds filenames that do not contain a pattern?
+Answer:
+We use grep -L.
+Example:
+grep -L "error" *.log
+Displays filenames that do not contain the word error.
+Difference:
+•	grep -l – Displays filenames containing the pattern.
+•	grep -L – Displays filenames not containing the pattern.
+162. What is the find command? Explain the following commands.
+Answer:
+The find command is used to search for files and directories based on name, type, size, permissions and modification time.
+1. Find a file by name:
+find /home -name "file.txt"
+2. Find all shell scripts:
+find /home -type f -name "*.sh"
+3. Find empty files:
+find /home -type f -empty
+4. Find and delete empty files:
+find /home -type f -empty -delete
+Meaning of options:
+Option	Meaning
+-name	Search by filename
+-type f	Regular files
+-type d	Directories
+-empty	Empty files/directories
+-size	Search by size
+-mtime	Modification time in days
+-mmin	Modification time in minutes
+-delete	Delete matching entries
+163. Find files and directories modified in the last 5 days, more than 12 days ago, last 20 minutes, more than 35 minutes ago and 24 hours ago.
+Answer:
+We use find with -mtime and -mmin.
+Requirement	Command
+Last 5 days	find /home -mtime -5
+More than 12 days ago	find /home -mtime +12
+Last 20 minutes	find /home -mmin -20
+More than 35 minutes ago	find /home -mmin +35
+Last 24 hours	find /home -mmin -1440
+Approximately 24 hours ago	find /home -mmin 1440
+Important:
+•	-mtime uses 24-hour periods.
+•	-mmin uses minutes.
+•	- means less than the specified age.
+•	+ means greater than the specified age.
+For an exact rolling 24-hour window, use -mmin -1440.
+To search only files:
+find /home -type f -mmin -1440
+To search only directories:
+find /home -type d -mmin -1440
+164. How do you find all files with a size greater than 2 MB?
+Answer:
+find /home -type f -size +2M
+Find files greater than 100 MB:
+find /home -type f -size +100M
+Find files greater than 1 GB:
+find /home -type f -size +1G
+165. How do you find and delete all empty files?
+Answer:
+Find:
+find /home -type f -empty
+Delete:
+find /home -type f -empty -delete
+For safety, check the output before deleting.
+166. How do you list the number of users on the server?
+Answer:
+getent passwd | wc -l
+Display usernames:
+getent passwd | cut -d: -f1
+Display local user accounts only:
+cat /etc/passwd
+Note: These commands count configured accounts, including system accounts. They do not necessarily count only human users.
+167. How do you set a password and delete a user along with their home directory?
+Answer:
+Set a password:
+sudo passwd username
+Delete a user:
+sudo userdel username
+Delete a user along with their home directory:
+sudo userdel -r username
+Verify:
+getent passwd username
+If no result appears, the account is no longer present in the configured user database.
+168. What is the meaning of cat /etc/passwd and getent passwd?
+Answer:
+Both commands display user account information.
+cat /etc/passwd:
+cat /etc/passwd
+Displays locally configured user accounts in the passwd file.
+getent passwd:
+getent passwd
+Displays user records from configured account databases, including local files and possibly LDAP or other network services.
+Difference:
+cat /etc/passwd	getent passwd
+Reads local passwd file	Queries configured user databases
+Displays local entries	Can display local and external accounts
+Does not query LDAP by itself	Can query LDAP if configured
+169. Explain userdel username and passwd username.
+Answer:
+1. userdel
+Used to delete a user account.
+sudo userdel username
+Delete user and home directory:
+sudo userdel -r username
+2. passwd
+Used to create or change a user's password.
+sudo passwd username
+The command prompts you to enter and confirm a new password.
+170. What is the meaning of groupadd groupname and groupdel groupname?
+Answer:
+groupadd:
+Creates a new group.
+sudo groupadd DevOps
+groupdel:
+Deletes a group.
+sudo groupdel DevOps
+Check group details:
+getent group DevOps
+171. What do these commands do: gpasswd -a and gpasswd -d?
+Answer:
+Both commands are used to manage group membership.
+Add a user to a group:
+sudo gpasswd -a lokesh DevOps
+Meaning: Add user Lokesh to the DevOps group.
+Remove a user from a group:
+sudo gpasswd -d lokesh DevOps
+Meaning: Remove Lokesh from the DevOps group.
+Verify:
+groups lokesh
+172. What is the meaning of getent group and cat /etc/group?
+Answer:
+getent group:
+getent group
+Displays groups from configured group databases.
+Specific group:
+getent group DevOps
+cat /etc/group:
+cat /etc/group
+Displays locally configured group information.
+A group entry contains:
+groupname:password:GID:members
+Example:
+DevOps:x:1005:lokesh
+Meaning:
+•	DevOps – Group name.
+•	x – Password placeholder.
+•	1005 – Group ID.
+•	lokesh – Group member.
+173. What is a file? How do you give write permission and remove write permission from a group?
+Answer:
+A file is a named object used to store information or data in Linux.
+Give write permission to the group:
+chmod g+w file.txt
+Remove write permission from the group:
+chmod g-w file.txt
+Check permissions:
+ls -l file.txt
+Example:
+-rw-rw-r-- file.txt
+The second rw represents the group's read and write permissions.
+174. What are the default permissions assigned to files and directories?
+Answer:
+Linux uses default base permissions and umask.
+Default base permissions:
+Type	Base permission
+File	666
+Directory	777
+With a common umask of 022:
+Type	Final permission
+File	644
+Directory	755
+Why are executable permissions not given to normal files by default?
+Regular files are created without execute permission for security reasons.
+Check umask:
+umask
+175. Explain chown username filename, chgrp groupname filename and chown username:groupname filename.
+Answer:
+1. Change owner:
+chown lokesh file.txt
+Changes file owner to Lokesh.
+2. Change group:
+chgrp DevOps file.txt
+Changes the file group to DevOps.
+3. Change owner and group:
+chown lokesh:DevOps file.txt
+Changes both owner and group.
+Usually, these operations require appropriate privileges.
+176. What is a link? Explain soft link and hard link.
+Answer:
+A link is a reference that allows us to access a file through another name or path.
+Hard link:
+Points to the same inode as the original file.
+ln file.txt hard.txt
+Soft link:
+Points to the original file's pathname.
+ln -s file.txt soft.txt
+Check:
+ls -li
+Why do we use links?
+•	To access files from different locations.
+•	To avoid unnecessary duplication.
+•	To create shortcuts.
+•	To maintain convenient application paths.
+177. What is the meaning of ps -ef and ps -u username?
+Answer:
+ps -ef:
+ps -ef
+Displays all processes in full-format listing.
+ps -u username:
+ps -u lokesh
+Displays processes associated with the specified user.
+Difference:
+•	ps -ef – All processes.
+•	ps -u username – Processes associated with that user.
+178. Why do we use who, hostname, curl ifconfig.me and cat /etc/os-release?
+Answer:
+Command	Purpose
+who	Displays logged-in users
+hostname	Displays server hostname
+curl ifconfig.me	Displays public IP seen by external service
+cat /etc/os-release	Displays Linux distribution details
+Examples:
+who
+hostname
+curl ifconfig.me
+cat /etc/os-release
+These commands are useful during server identification and troubleshooting.
+179. List important Linux distributions and their package managers.
+Answer:
+Distribution	Package manager
+Ubuntu	APT
+Debian	APT
+RHEL	DNF / YUM
+CentOS	DNF / YUM
+Rocky Linux	DNF
+AlmaLinux	DNF
+Fedora	DNF
+Amazon Linux	DNF / YUM
+SUSE	Zypper
+Arch Linux	Pacman
+Examples:
+sudo apt install nginx
+sudo dnf install nginx
+sudo zypper install nginx
+180. How do you list the contents of a tar file and list a particular file?
+Answer:
+A tar file is an archive containing one or more files or directories.
+List all contents:
+tar -tf backup.tar
+List contents of a compressed archive:
+tar -tzf backup.tar.gz
+Search for a particular file in the archive:
+tar -tzf backup.tar.gz | grep "file.txt"
+Extract a particular file:
+tar -xzf backup.tar.gz path/to/file.txt
+List contents in detailed format:
+tar -tvf backup.tar
+181. How do you compress and extract a file? Give examples.
+Answer:
+Linux supports multiple compression formats.
+1. Compress using tar.gz:
+tar -czvf backup.tar.gz directory/
+2. Extract tar.gz:
+tar -xzvf backup.tar.gz
+3. Create a tar archive without compression:
+tar -cvf backup.tar directory/
+4. Extract tar:
+tar -xvf backup.tar
+5. Compress using gzip:
+gzip file.txt
+6. Decompress using gunzip:
+gunzip file.txt.gz
+Meaning of common tar options:
+Option	Meaning
+c	Create archive
+x	Extract archive
+z	gzip compression
+v	Verbose output
+f	Archive filename
+t	List archive contents
+182. How is file and directory synchronization done? Give an example.
+Answer:
+We commonly use the rsync command to synchronize files and directories between systems.
+Local synchronization:
+rsync -av source/ destination/
+Remote synchronization:
+rsync -avz /data/ user@192.168.1.10:/backup/
+Options:
+•	-a – Archive mode; preserves common file attributes.
+•	-v – Verbose output.
+•	-z – Compress data during transfer.
+Delete files from destination that no longer exist in source:
+rsync -av --delete source/ destination/
+Be careful: --delete removes destination files. Always check with a dry run first:
+rsync -avn --delete source/ destination/
+183. Give me the steps to create an EC2 instance.
+Answer:
+Amazon EC2 is a service provided by AWS that allows us to create virtual servers in the cloud.
+ 
+Steps:
+1.	Log in to the AWS Management Console.
+2.	Open the EC2 service.
+3.	Select the required AWS region.
+4.	Click Launch Instance.
+5.	Enter an instance name.
+6.	Select an AMI, such as Amazon Linux or Ubuntu.
+7.	Select an instance type, such as t3.micro.
+8.	Create or select a key pair.
+9.	Configure the VPC and subnet.
+10.	Configure security group rules.
+11.	Configure storage.
+12.	Review the configuration.
+13.	Click Launch Instance.
+After launching:
+Connect to the server through SSH:
+ssh -i key.pem ec2-user@PUBLIC_IP
+For Ubuntu:
+ssh -i key.pem ubuntu@PUBLIC_IP
+Important: Keep SSH restricted to trusted IP addresses and never share your private key.
+184. What do the commands tree -d and uptime do?
+Answer:
+tree -d:
+Displays only directories in a tree structure.
+tree -d
+For a particular directory:
+tree -d /home
+uptime:
+Displays how long the server has been running, number of logged-in users and load averages.
+uptime
+Example:
+17:30:00 up 10 days, 2 users, load average: 0.50, 0.40, 0.30
+The three load averages represent approximately 1-minute, 5-minute and 15-minute averages.
+185. What happens when inodes are full? How do you troubleshoot?
+Answer:
+When inode capacity is exhausted, Linux cannot create new files, even if free disk space is available.
+Check:
+df -i
+Identify directories with many files:
+find /var -xdev -type f | awk -F/ '{print "/"$2"/"$3}' | sort | uniq -c | sort -nr | head
+Troubleshooting steps:
+1.	Identify the full filesystem.
+2.	Identify directories containing large numbers of small files.
+3.	Check temporary directories and application caches.
+4.	Identify unnecessary files.
+5.	Remove only files confirmed to be safe to delete.
+6.	Recheck inode utilization.
+186. Find files having a size between 1 MB and 2 MB.
+Answer:
+find /home -type f -size +1M -size -2M
+For a precise byte range:
+find /home -type f -size +1048575c -size -2097153c
+This finds regular files with sizes from 1 MiB through 2 MiB inclusive.
+187. What is fdisk and lsblk?
+Answer:
+fdisk:
+Used to view and manage disk partitions.
+sudo fdisk -l
+It displays disk and partition information.
+lsblk:
+Used to display block devices, disks and partitions in a tree format.
+lsblk
+Detailed information:
+lsblk -f
+Difference:
+fdisk	lsblk
+Manages disk partitions	Displays block device information
+Can create/delete partitions	Primarily used for inspection
+Used for partition administration	Used to understand disk layout
+189. What is umask? How do you set it temporarily and permanently? What are default permissions?
+Answer:
+Umask controls default permissions assigned to newly created files and directories.
+Check current value:
+umask
+Change temporarily:
+umask 022
+Change permanently for a user:
+vi ~/.bashrc
+Add:
+umask 022
+Reload:
+source ~/.bashrc
+Common permission values:
+Umask	File permission	Directory permission
+022	644	755
+027	640	750
+077	600	700
+002	664	775
+Typical default: Many Linux user accounts use umask 022, but the actual value depends on distribution and configuration.
+190. What is the difference between .bashrc and .bash_profile?
+Answer:
+.bashrc	.bash_profile
+Used by interactive non-login Bash shells	Used by login Bash shells
+Stores aliases and functions	Stores login environment configuration
+Commonly loaded when opening interactive terminals	Loaded when starting login Bash sessions
+Example .bashrc:
+alias ll='ls -l'
+Example .bash_profile:
+export JAVA_HOME=/usr/lib/jvm/java
+A .bash_profile commonly sources .bashrc to load interactive settings.
+191. What is HTTP, HTTPS and HTTPD?
+Answer:
+HTTP:
+Hypertext Transfer Protocol. It is used for communication between web browsers and web servers.
+Default port: 80.
+HTTPS:
+Hypertext Transfer Protocol Secure. It uses TLS to encrypt communication between browsers and web servers.
+Default port: 443.
+HTTPD:
+HTTP Daemon. It commonly refers to the Apache HTTP Server service or executable on Linux systems.
+Difference:
+HTTP	HTTPS	HTTPD
+Web communication protocol	Secure web communication protocol	Web server software/service name
+Port 80	Port 443	Commonly Apache server
+Not encrypted by itself	Encrypted using TLS	Serves web content
+192. What do who and users commands do in Linux?
+Answer:
+Both commands display users currently logged in.
+who:
+who
+Displays login details such as terminal and login time.
+users:
+users
+Displays the usernames of currently logged-in users.
+Difference: who provides more login information, while users provides a simpler list of usernames.
+193. How do you find users having sudo privileges?
+Answer:
+Check common administrative groups:
+getent group sudo
+On RHEL-based systems:
+getent group wheel
+Check sudo configuration:
+sudo visudo
+Check an individual user:
+sudo -l -U username
+Important: Users may receive sudo permissions through individual sudoers rules or included configuration files, not just through the sudo or wheel groups.
+194. What are curl ifconfig.me and hostname -i used for?
+Answer:
+curl ifconfig.me:
+curl ifconfig.me
+Displays the public IP address observed by the external service.
+hostname -i:
+hostname -i
+Displays IP addresses associated with the hostname's name resolution. It may return loopback or other addresses depending on hostname configuration.
+For reliable interface IP information, prefer:
+ip addr
+195. What is set -e? Give similar commands.
+Answer:
+set -e is used in shell scripting to exit when a command fails in situations where Bash's errexit rules apply.
+Example:
+#!/bin/bash
+
+set -e
+
+mkdir testdir
+cd testdir
+
+echo "Script completed"
+If an eligible command fails, the script exits instead of continuing.
+Similar commands:
+Command	Purpose
+set -e	Exit on eligible command failure
+set -u	Treat unset variables as errors
+set -x	Display commands while executing
+set -v	Display shell input lines
+set -o pipefail	Detect failures in pipelines
+Professional tip: set -e has exceptions, particularly with conditions, loops and parts of pipelines. Use explicit error handling for critical scripts.
+196. How do you find a specific user using getent?
+Answer:
+We use:
+getent passwd username
+Example:
+getent passwd lokesh
+This displays the user's account details if found.
+Check a specific group:
+getent group DevOps
+Check whether a user exists:
+if getent passwd lokesh > /dev/null
+then
+    echo "User exists"
+else
+    echo "User does not exist"
+fi
+197. What is debugging in shell scripts?
+Answer:
+Debugging means identifying and correcting errors in a shell script.
+Common debugging options:
+bash -x script.sh
+Displays commands as they execute.
+bash -v script.sh
+Displays script lines as they are read.
+bash -n script.sh
+Checks syntax without executing the script.
+Inside a script:
+set -x
+echo "Hello"
+set +x
+Why do we use debugging?
+•	Find syntax errors.
+•	Identify incorrect variable values.
+•	Troubleshoot command failures.
+•	Understand execution flow.
+•	Fix automation problems.
+198. How do you find non-empty files and empty files in Linux?
+Answer:
+Find empty files:
+find /home -type f -empty
+Find non-empty files:
+find /home -type f -not -empty
+Alternative:
+find /home -type f -size +0c
+Difference:
+•	-empty – Finds zero-byte files.
+•	-not -empty – Finds files containing data.
+199. How do you switch from one server to another server?
+Answer:
+We commonly use SSH to connect from one Linux server to another.
+Syntax:
+ssh username@server_ip
+Example:
+ssh ubuntu@192.168.1.20
+Using a private key:
+ssh -i key.pem ubuntu@192.168.1.20
+Using a custom port:
+ssh -p 2222 ubuntu@192.168.1.20
+Real-time example:
+You are connected to Server A and need to access Server B. Execute the SSH command from Server A to establish a connection to Server B.
+200. How do you assign a variable using echo?
+Answer:
+First, assign a value to a variable.
+name="Lokesh"
+Display the variable:
+echo $name
+Output:
+Lokesh
+Assign the output of a command to a variable:
+current_date=$(date)
+Display:
+echo "$current_date"
+Important: echo $variable displays the value. It does not assign the value.
+Part 6: Advanced Linux, Shell Scripting and DevOps Practical Questions (Questions 201–240)
+201. What is the meaning of nslookup, traceroute and uname -a?
+Answer:
+1. nslookup
+Used to find DNS information and resolve domain names into IP addresses.
+nslookup google.com
+2. traceroute
+Used to identify the network path between your server and a destination.
+traceroute google.com
+3. uname -a
+Displays kernel and system information.
+uname -a
+Difference:
+Command	Purpose
+nslookup	DNS troubleshooting
+traceroute	Network route troubleshooting
+uname -a	Kernel and OS architecture information
+202. How do you restrict a user from accessing a file?
+Answer:
+We can restrict file access using Linux permissions.
+Example:
+chmod 600 file.txt
+Meaning:
+•	Owner: Read and write.
+•	Group: No permission.
+•	Others: No permission.
+Another example:
+chmod 700 directory
+Only the owner can access the directory.
+We can also use ACL permissions for individual users:
+setfacl -m u:john:--- file.txt
+This removes all ACL permissions for John on that file, although other access rules and privileges must also be considered.
+203. What is sticky bit and how do you apply it on a directory?
+Answer:
+Sticky bit is a special permission used on shared directories.
+It prevents ordinary users from deleting or renaming files owned by other users.
+Apply:
+chmod +t shared
+Numeric method:
+chmod 1777 shared
+Check:
+ls -ld shared
+Output:
+drwxrwxrwt
+Real-time example: The /tmp directory commonly uses sticky bit because multiple users need to create temporary files.
+204. What is swap memory? What is its use? What is load average?
+Answer:
+Swap memory:
+Swap is disk space used as an extension of virtual memory when RAM is under pressure.
+Check:
+free -h
+swapon --show
+Load average:
+Load average represents the average number of tasks that are running or waiting for CPU resources and certain uninterruptible operations over different time periods.
+Check:
+uptime
+Example:
+load average: 0.50, 1.00, 1.50
+These represent:
+•	First value: Last 1 minute.
+•	Second value: Last 5 minutes.
+•	Third value: Last 15 minutes.
+Important: Load average must be considered relative to the number of CPU cores. A load of 4 has a different meaning on a 2-core system than on a 16-core system.
+205. How do you kill all processes running on the server?
+Answer:
+There is no safe general command to kill every process on a Linux server while keeping the system operating normally.
+You should identify and terminate only the intended processes.
+Kill all processes belonging to a particular user:
+sudo pkill -u username
+Kill all processes matching an application:
+sudo pkill -f java
+Kill a particular process:
+kill -15 PID
+Forcefully:
+kill -9 PID
+Important: Never run commands that blindly terminate all processes. This can crash the operating system or interrupt production applications.
+206. What is rsync? What is netstat -tulnp?
+Answer:
+Rsync:
+Used to synchronize files and directories between local or remote systems.
+Example:
+rsync -avz /data/ user@server:/backup/
+netstat -tulnp:
+Displays listening TCP and UDP ports with numeric port numbers and process information.
+Meaning:
+Option	Meaning
+-t	TCP
+-u	UDP
+-l	Listening
+-n	Numeric addresses and ports
+-p	Process information
+Example:
+sudo netstat -tulnp
+Modern alternative:
+sudo ss -tulnp
+207. What is shebang, shell and kernel?
+Answer:
+Shebang:
+The first line of a shell script specifies the interpreter.
+Example:
+#!/bin/bash
+Shell:
+A command interpreter that allows users to communicate with Linux.
+Examples:
+•	Bash
+•	Sh
+•	Ksh
+•	Zsh
+Kernel:
+The core of the operating system. It manages hardware, memory, processes, devices and networking.
+Difference:
+Shebang	Shell	Kernel
+Identifies script interpreter	Interprets commands	Manages system resources
+Used in scripts	Used by users	Core OS component
+208. What are the different ways to connect to a Linux server, such as Telnet, PuTTY and SSH?
+Answer:
+There are different ways to connect to remote servers.
+1. SSH
+Secure remote login.
+ssh username@server_ip
+2. PuTTY
+A graphical SSH client commonly used on Windows.
+ 
+Enter:
+•	Hostname or IP address.
+•	Port number 22.
+•	Connection type SSH.
+3. Telnet
+Used for remote terminal connections, but it does not encrypt communication.
+telnet server_ip 23
+4. Windows PowerShell
+Modern Windows systems support SSH directly:
+ssh username@server_ip
+5. EC2 Instance Connect
+AWS provides a browser-based and other supported methods to connect to EC2 instances.
+Interview answer: We commonly use SSH for secure Linux server access. On Windows, PuTTY is another popular SSH client. Telnet is generally avoided for remote login because it transmits data without encryption.
+209. What is a while loop? What is its purpose? Write its syntax and a script to print even numbers.
+Answer:
+A while loop is used to execute commands repeatedly as long as a condition is true.
+Syntax:
+while [ condition ]
+do
+    commands
+done
+Example: Print even numbers from 1 to 20
+#!/bin/bash
+
+i=2
+
+while [ $i -le 20 ]
+do
+    echo $i
+    i=$((i+2))
+done
+Output:
+2
+4
+6
+8
+10
+12
+14
+16
+18
+20
+Explanation:
+•	i=2 – Starting number.
+•	-le 20 – Continue while i is less than or equal to 20.
+•	echo $i – Print the number.
+•	i=$((i+2)) – Increase by 2.
+•	done – End the loop.
+210. Practically, how do you connect to another server without using a password?
+Answer:
+We use SSH key-based authentication.
+It is a secure way to connect between servers without entering a password every time.
+ 
+Step 1: Generate SSH keys on Server A
+ssh-keygen -t ed25519
+Press Enter to accept the default location. For fully non-interactive automation, a dedicated key may be created without a passphrase, subject to your organization's security policy.
+Step 2: Copy public key to Server B
+ssh-copy-id username@serverB_IP
+Step 3: Connect to Server B
+ssh username@serverB_IP
+Now key-based authentication should work without an account password prompt.
+Important files:
+~/.ssh/id_ed25519
+~/.ssh/id_ed25519.pub
+~/.ssh/authorized_keys
+•	Private key: Keep secure on Server A.
+•	Public key: Stored in Server B's authorized_keys.
+211. Create a user and grant sudo privileges.
+Answer:
+Step 1: Create a user
+sudo useradd -m lokesh
+Step 2: Set password
+sudo passwd lokesh
+Step 3: Give sudo permission
+Ubuntu:
+sudo usermod -aG sudo lokesh
+RHEL:
+sudo usermod -aG wheel lokesh
+Step 4: Verify
+groups lokesh
+Step 5: Test sudo access
+Log in as that user and execute:
+sudo whoami
+Expected output:
+root
+212. What are all the debugging options in shell scripting?
+Answer:
+Debugging helps us find errors in shell scripts.
+Important options:
+Option	Meaning
+bash -x script.sh	Displays commands during execution
+bash -v script.sh	Displays script lines as read
+bash -n script.sh	Checks syntax only
+set -x	Enables execution tracing
+set +x	Disables execution tracing
+set -e	Exits on eligible command failures
+set -u	Detects unset variables
+set -o pipefail	Detects pipeline failures
+Example:
+#!/bin/bash
+
+set -x
+
+name="Lokesh"
+echo "$name"
+
+set +x
+213. Write a shell script to print odd numbers.
+Answer:
+Print odd numbers from 1 to 20.
+#!/bin/bash
+
+i=1
+
+while [ $i -le 20 ]
+do
+    echo $i
+    i=$((i+2))
+done
+Output:
+1
+3
+5
+7
+9
+11
+13
+15
+17
+19
+Logic:
+•	Start with 1.
+•	Check whether the number is less than or equal to 20.
+•	Print the number.
+•	Increase the number by 2.
+•	Repeat until the condition becomes false.
+214. What is the difference between Telnet and SSH?
+Answer:
+Telnet	SSH
+Not encrypted	Encrypted
+Less secure	More secure
+Default port 23	Default port 22
+Sends data in plaintext	Encrypts communication
+Not recommended for remote administration	Commonly used for remote administration
+Interview answer: SSH is preferred over Telnet because SSH provides encrypted communication and secure authentication.
+215. Explain any five root folders and their purposes.
+Answer:
+Linux follows a hierarchical directory structure starting from the root directory /.
+ 
+Five important directories:
+1. /etc
+Contains system configuration files.
+Example:
+ls /etc
+2. /var
+Contains variable data such as logs, cache and application data.
+Example:
+ls /var/log
+3. /home
+Contains regular users' home directories.
+Example:
+/home/lokesh
+4. /root
+Home directory of the root administrator.
+5. /tmp
+Used for temporary files.
+Other important directories:
+Directory	Purpose
+/bin	Essential user commands (often merged with /usr/bin)
+/sbin	System administration commands (often merged with /usr/sbin)
+/boot	Bootloader and kernel-related files
+/dev	Device files
+/proc	Virtual filesystem containing process and kernel information
+/sys	Kernel device and system information
+/usr	User applications and shared resources
+/opt	Optional third-party software
+/mnt	Temporary mount point
+/media	Removable media mount points
+216. How do you check the current shell running on the server?
+Answer:
+There are different methods.
+Method 1:
+echo $SHELL
+Displays the user's configured login shell.
+Method 2:
+ps -p $$ -o comm=
+Displays the current shell process name.
+Method 3:
+echo $0
+Displays the current shell or script invocation name.
+Important: $SHELL may show your configured login shell, not necessarily the shell currently executing your commands.
+217. How do you switch from one shell to another?
+Answer:
+First, check available shells:
+cat /etc/shells
+Switch to Bash:
+bash
+Switch to Zsh:
+zsh
+Switch to Korn shell:
+ksh
+Exit the current shell:
+exit
+Change the default login shell:
+chsh -s /bin/bash
+The change generally applies to future login sessions.
+218. How can we restrict a user or a process?
+Answer:
+Linux provides different methods to restrict users and processes.
+1. File permissions
+chmod 600 file.txt
+Restricts file access to the owner.
+2. ACL permissions
+setfacl -m u:john:r-- file.txt
+Gives John read-only ACL permission.
+3. Process priority
+nice -n 15 ./script.sh
+Runs the process with lower CPU scheduling priority.
+4. Resource limits
+ulimit -a
+Displays shell resource limits.
+5. User account restrictions
+sudo usermod -L username
+Locks a user's password authentication.
+6. Firewall restrictions
+Firewall rules can restrict network access.
+Interview answer: We can restrict users through file permissions, ACLs, sudo policies and account controls. We can restrict processes through resource limits, process scheduling and system service controls.
+219. List networking commands used to troubleshoot Linux servers.
+Answer:
+Important networking commands:
+Command	Purpose
+ip addr	Display IP addresses
+ip route	Display routing table
+ping	Test network reachability
+traceroute	Identify network path
+tracepath	Trace network path
+nslookup	DNS lookup
+dig	Detailed DNS query
+curl	Test HTTP/HTTPS requests
+wget	Download files
+ss	Display sockets and ports
+netstat	Network statistics
+nc	Test TCP/UDP connectivity
+lsof	Identify processes using ports
+hostname	Display hostname
+ethtool	Display network interface information
+Practical troubleshooting example:
+Suppose a website is not opening.
+ping google.com
+Check DNS:
+nslookup google.com
+Check route:
+ip route
+Check port:
+nc -zv google.com 443
+Test HTTPS:
+curl -I https://google.com
+220. How can you create an SSL certificate?
+Answer:
+SSL certificates are commonly used to enable HTTPS communication. Modern secure websites use TLS.
+We can generate a self-signed certificate using OpenSSL.
+Step 1: Generate a private key and certificate
+openssl req -x509 -nodes -days 365 \
+-newkey rsa:2048 \
+-keyout server.key \
+-out server.crt
+Step 2: Verify the certificate
+openssl x509 -in server.crt -text -noout
+Step 3: Check private key
+openssl rsa -in server.key -check
+Important:
+•	server.key – Private key.
+•	server.crt – Certificate.
+•	Self-signed certificates are suitable for testing but are not automatically trusted by browsers.
+For production websites, obtain a certificate from a trusted Certificate Authority, for example using Let's Encrypt.
+221. How do you add and delete a user from a Linux server?
+Answer:
+Create a user:
+sudo useradd -m lokesh
+Set password:
+sudo passwd lokesh
+Delete a user:
+sudo userdel lokesh
+Delete user with home directory:
+sudo userdel -r lokesh
+Verify:
+getent passwd lokesh
+222. How do you use setfacl -m to restrict a user from accessing a file?
+Answer:
+ACL stands for Access Control List.
+It allows us to assign permissions to individual users and groups beyond the normal owner/group/others permissions.
+Give read-only permission:
+setfacl -m u:john:r-- file.txt
+Remove all ACL permissions for John:
+setfacl -m u:john:--- file.txt
+Remove John's specific ACL entry:
+setfacl -x u:john file.txt
+Check ACL:
+getfacl file.txt
+Why do we use ACL?
+Suppose a file is owned by Lokesh and belongs to the DevOps group. You want to give another user John read-only permission without changing the normal group permissions. ACL is useful in this situation.
+223. What is the difference between sort and uniq?
+Answer:
+sort:
+Sorts lines in a file.
+sort file.txt
+uniq:
+Removes or identifies adjacent duplicate lines.
+uniq file.txt
+Difference:
+sort	uniq
+Sorts data	Identifies adjacent duplicates
+Changes line order	Does not sort by itself
+Supports numeric and reverse sorting	Supports duplicate counting
+Remove all duplicate lines:
+sort file.txt | uniq
+Count duplicate lines:
+sort file.txt | uniq -c
+224. How do you start, stop and restart a service?
+Answer:
+We use systemctl.
+Start:
+sudo systemctl start nginx
+Stop:
+sudo systemctl stop nginx
+Restart:
+sudo systemctl restart nginx
+Reload configuration where supported:
+sudo systemctl reload nginx
+Check status:
+sudo systemctl status nginx
+Enable service during boot:
+sudo systemctl enable nginx
+225. How do you search for a file at a specific depth of 5?
+Answer:
+We use find with -maxdepth and -mindepth.
+Search up to depth 5:
+find /home -maxdepth 5 -type f
+Search exactly at depth 5:
+find /home -mindepth 5 -maxdepth 5 -type f
+Search directories at depth 5:
+find /home -mindepth 5 -maxdepth 5 -type d
+Remember:
+•	-maxdepth 5 – Do not search deeper than level 5.
+•	-mindepth 5 – Do not return entries above level 5.
+226. How do you check the kernel version of the system?
+Answer:
+Use:
+uname -r
+Displays the running kernel version.
+Detailed information:
+uname -a
+Another method:
+hostnamectl
+Check installed kernel packages on RHEL:
+rpm -q kernel
+227. How do you list the top five largest directories under /home?
+Answer:
+Use:
+du -xhd1 /home | sort -hr | head -5
+Meaning:
+•	du – Disk usage.
+•	-x – Stay on the same filesystem.
+•	-h – Human-readable sizes.
+•	-d1 – Display one directory level.
+•	sort -hr – Sort sizes from largest to smallest.
+•	head -5 – Display the first five entries.
+Note: The output can include /home itself as one of the entries.
+228. Create a script to archive /etc to /temp/etc_backup with today's date.
+Answer:
+We use tar and the date command.
+Script:
+#!/bin/bash
+
+DATE=$(date +%Y-%m-%d)
+
+mkdir -p /temp
+
+tar -czf "/temp/etc_backup_${DATE}.tar.gz" /etc
+
+echo "Backup completed successfully"
+Example output filename:
+/temp/etc_backup_2026-11-08.tar.gz
+Line-by-line explanation:
+1.	DATE=$(date +%Y-%m-%d) – Gets today's date.
+2.	mkdir -p /temp – Creates the backup directory if necessary.
+3.	tar -czf – Creates a gzip-compressed archive.
+4.	/etc – Directory being backed up.
+5.	echo – Displays completion message.
+A production-quality script should also check the tar exit status, permissions, backup destination space and retention policy.
+229. Find the top CPU-consuming processes and kill them.
+Answer:
+First, identify high CPU-consuming processes.
+ps aux --sort=-%cpu | head -10
+Alternative:
+top
+Identify a particular process PID:
+pgrep -af java
+Gracefully terminate:
+kill -15 PID
+If it does not stop and termination is approved:
+kill -9 PID
+Interview answer:
+I first identify the processes consuming high CPU using top or ps. Then I check the application and its logs to identify the reason. I try graceful termination or service restart if required, rather than immediately force-killing production processes.
+230. What is the difference between fork() and exec() in Linux process context?
+Answer:
+These are system calls used in process creation and execution.
+fork():
+Creates a new child process from the calling process.
+exec():
+Replaces the current process's program with a new program. It does not normally create a new process by itself.
+Difference:
+fork()	exec()
+Creates a child process	Replaces the current process image
+Parent continues running	Current process executes a new program
+Child has a new PID	PID normally remains the same
+Used for process creation	Used for program execution
+Example:
+A shell commonly uses fork to create a child process and exec to run an external command inside that child.
+231. What is the difference between du -h and df -h?
+Answer:
+du -h	df -h
+Displays file/directory disk usage	Displays filesystem disk usage
+Helps find large directories	Helps find full partitions
+Measures directory/file usage	Reports filesystem used and available space
+Examples:
+du -sh /var/log
+df -h
+Interview answer: I use df -h to identify which filesystem is full and du -h to identify which files or directories are consuming space.
+232. What is the difference between bg and fg?
+Answer:
+Both commands are used for job control.
+bg:
+Resumes a suspended job in the background.
+bg
+fg:
+Brings a background or suspended job to the foreground.
+fg
+Example:
+Start a process:
+sleep 500
+Press Ctrl+Z to suspend it.
+Resume in background:
+bg
+Bring it back to foreground:
+fg
+Difference:
+bg	fg
+Runs job in background	Runs job in foreground
+Does not occupy terminal input	Occupies terminal input
+Used to resume background execution	Used to interact with a job
+233. How many special variables are there in shell scripting? List them.
+Answer:
+There is no fixed total number of special variables across all shells and versions. The commonly used Bash special parameters are:
+Variable	Purpose
+$0	Script name
+$1 to $9	Positional arguments
+${10} onward	Additional positional arguments
+$#	Number of positional arguments
+$@	All positional arguments
+$*	All positional arguments
+$?	Last command exit status
+$$	Current shell PID
+$!	Last background process PID
+$_	Last argument of previous command in Bash
+Example:
+#!/bin/bash
+
+echo "Script: $0"
+echo "First argument: $1"
+echo "Arguments count: $#"
+echo "All arguments: $@"
+echo "Exit status: $?"
+234. What are file operators in shell scripting?
+Answer:
+File operators are used to check the existence, type and permissions of files and directories.
+Important file test operators:
+Operator	Meaning
+-e	File or path exists
+-f	Regular file exists
+-d	Directory exists
+-L	Symbolic link exists
+-r	Read permission available
+-w	Write permission available
+-x	Execute permission available
+-s	File exists and has non-zero size
+-b	Block device
+-c	Character device
+-p	Named pipe
+-S	Socket
+-O	Owned by current effective user
+-G	Owned by current effective group
+-nt	Newer than another file
+-ot	Older than another file
+-ef	Same device and inode
+Example:
+#!/bin/bash
+
+if [ -f file.txt ]
+then
+    echo "File exists"
+else
+    echo "File does not exist"
+fi
+235. What do you mean by an infinite loop?
+Answer:
+An infinite loop is a loop that continues executing without stopping because its termination condition is never reached.
+Example:
+#!/bin/bash
+
+while true
+do
+    echo "Linux DevOps"
+    sleep 2
+done
+Output:
+Linux DevOps
+Linux DevOps
+Linux DevOps
+It continues until stopped.
+Stop using:
+Ctrl+C
+Why do we use it?
+•	Continuous monitoring.
+•	Background monitoring scripts.
+•	Repeated health checks.
+•	Long-running services.
+In production scripts, include a proper exit condition or signal handling.
+236. What if you are not able to connect to a server? What steps do you check first?
+Answer:
+As a DevOps engineer, I troubleshoot the connection step by step.
+Step 1: Check network connectivity
+ping server_ip
+Step 2: Check IP address
+ip addr
+Step 3: Check routing
+ip route
+Step 4: Check SSH port connectivity
+nc -zv server_ip 22
+Step 5: Check DNS resolution
+nslookup servername
+Step 6: Check SSH service on the target server
+systemctl status sshd
+Step 7: Check firewall
+sudo firewall-cmd --list-all
+Or:
+sudo ufw status
+Step 8: Check cloud security groups
+For AWS EC2, verify:
+•	Correct public/private IP.
+•	Security group inbound rules.
+•	Network ACL.
+•	Route table.
+•	Internet gateway or VPN connectivity.
+•	Instance status.
+Step 9: Check SSH credentials and permissions
+ssh -v username@server_ip
+Interview answer:
+First, I check network connectivity and IP details. Then I verify routing, DNS, port 22, SSH service, firewall and cloud security group rules. Finally, I verify credentials and SSH key permissions to identify the root cause.
+237. What is the difference between exec and source?
+Answer:
+Source:
+Executes a script in the current shell.
+source script.sh
+Changes to variables and the current shell environment can persist.
+Exec:
+Replaces the current shell process with another command or program.
+exec ls
+After this command, the current shell process is replaced by the ls program.
+Difference:
+source	exec
+Executes script in current shell	Replaces current process
+Shell continues after sourced script completes	Original shell does not continue after successful replacement
+Used to load variables and functions	Used to replace a process or redirect file descriptors
+Important: exec without a command can also modify file descriptors in the current shell.
+238. What is strace? How do you check running processes on the server?
+Answer:
+strace:
+Used to trace system calls and signals made by a process.
+Example:
+strace ls
+Trace a running process:
+sudo strace -p 1234
+Save output:
+strace -o trace.log ls
+Check running processes:
+ps -ef
+ps aux
+Live monitoring:
+top
+Find a specific process:
+pgrep -af java
+Interview answer: I use ps and top to identify running processes. If an application is failing, I use strace to understand the system calls and errors generated by that process.
+239. What is the use of iostat?
+Answer:
+iostat stands for Input/Output Statistics.
+It is used to monitor CPU usage and disk input/output performance.
+Why do we use it?
+•	To identify disk performance issues.
+•	To monitor read/write operations.
+•	To check disk utilization.
+•	To troubleshoot slow servers.
+•	To investigate high disk I/O wait.
+Commands:
+Display CPU and disk statistics:
+iostat
+Display extended information:
+iostat -x
+Update every two seconds:
+iostat -x 2
+Display three reports at two-second intervals:
+iostat -x 2 3
+Install if required:
+Ubuntu:
+sudo apt install sysstat
+RHEL:
+sudo dnf install sysstat
+Important fields:
+Field	Meaning
+%util	Percentage of time device was busy
+r/s	Read requests per second
+w/s	Write requests per second
+rMB/s	Read throughput
+wMB/s	Write throughput
+await	Average I/O request wait time
+240. What is a zombie process? Why does it occur in Linux?
+Answer:
+A zombie process is a process that has completed execution but whose parent process has not yet collected its exit status using a wait operation.
+It is also called a defunct process.
+How does it happen?
+1.	Parent process creates a child process.
+2.	Child process executes its task.
+3.	Child process finishes execution.
+4.	Parent does not collect the child's exit status.
+5.	The child remains in zombie state.
+How to identify zombie processes:
+ps aux | grep Z
+Or:
+ps -eo pid,ppid,stat,cmd
+Look for process state Z.
+How to troubleshoot:
+1.	Identify the zombie PID.
+2.	Find its parent PID.
+3.	Investigate the parent process.
+4.	Check whether the parent is calling wait/waitpid correctly.
+5.	Restart or correct the parent application if necessary.
+Example:
+ps -o pid,ppid,stat,cmd -p 1234
+Important: A zombie process has already terminated. You cannot remove it by sending SIGKILL to the zombie itself. Its parent must collect its exit status, or the parent must terminate so the zombie can be reaped by an adopting process.
+Final Revision: Most Important Linux Commands for DevOps Interviews
+These are the commands I recommend practising regularly.
+Category	Important commands
+File management	ls, cp, mv, rm, touch, mkdir
+File viewing	cat, less, more, head, tail, tac
+Searching	find, grep, locate, which
+Text processing	awk, sed, cut, sort, uniq, wc
+Permissions	chmod, chown, chgrp, umask, setfacl
+User management	useradd, usermod, userdel, passwd, groupadd
+Process management	ps, top, htop, kill, nice, renice
+Disk management	df, du, lsblk, fdisk, mount, iostat
+Networking	ping, ip, ss, netstat, curl, wget, nc
+Services	systemctl, journalctl
+Archiving	tar, gzip, gunzip, rsync, scp
+Shell scripting	if, while, for, case, read, echo
+Debugging	bash -x, bash -n, set -e, set -u
+How I recommend preparing for your DevOps interview
+Do not try to memorise all 240 answers in one day. Practise them in groups.
+Suggested revision plan
+1.	Day 1 – Linux fundamentals
+Questions 1–40: Architecture, LVM, networking basics, commands and shell scripting.
+2.	Day 2 – Permissions and processes
+Questions 41–80: chmod, chown, umask, processes, services and networking.
+3.	Day 3 – File management
+Questions 81–120: grep, find, awk, sed, tar and shell scripting.
+4.	Day 4 – Administration
+Questions 121–160: Users, groups, ports, SSH, disk and troubleshooting.
+5.	Day 5 – Practical interview preparation
+Questions 161–200: find, grep, permissions, EC2 and user management.
+6.	Day 6 – Advanced interview preparation
+Questions 201–240: Networking, processes, debugging and DevOps scenarios.
+My recommendation: Practise speaking each answer aloud in your own words. For practical commands, open your Linux terminal and execute them yourself. This will improve your confidence in technical interviews.
+You can also use ChatGPT as a Linux interviewer: I can ask you these questions one by one, listen to your spoken answers, identify mistakes and give you a better professional answer.
+list the
+
+
